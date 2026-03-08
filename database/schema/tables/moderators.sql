@@ -1,0 +1,4 @@
+CREATE TABLE IF NOT EXISTS moderators (
+    moderator_id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    user_id INT NOT NULL
+);

@@ -1,0 +1,1 @@
+CREATE DATABASE charging_point_database;

@@ -1,0 +1,4 @@
+CREATE TABLE IF NOT EXISTS report_types (
+    report_type_id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    report_reason VARCHAR NOT NULL UNIQUE
+);
