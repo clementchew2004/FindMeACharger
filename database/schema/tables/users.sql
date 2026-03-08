@@ -1,0 +1,7 @@
+CREATE TABLE IF NOT EXISTS users (
+    user_id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    user_name VARCHAR(255) NOT NULL UNIQUE,
+    public_name VARCHAR(255)
+);
+
+
