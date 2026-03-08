@@ -1,1 +1,0 @@
-INSERT INTO bay_types (bay_type_name) VALUES ('USB-C'), ('Lightning');
