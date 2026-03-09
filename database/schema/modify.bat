@@ -8,3 +8,4 @@ if "%PGPASSWORD%"=="unchanged" (
 @echo on
 psql -U postgres -d charging_point_database -h localhost -p 5432 -q -f ./modifications/modify_charging_points_1.sql
 psql -U postgres -d charging_point_database -h localhost -p 5432 -q -f ./modifications/modify_opening_times_1.sql
+psql -U postgres -d charging_point_database -h localhost -p 5432 -q -f ./modifications/modify_customers_1.sql
