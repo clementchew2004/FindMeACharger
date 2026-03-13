@@ -1,4 +1,4 @@
 CREATE TABLE IF NOT EXISTS customers (
     customer_id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    user_id TEXT NOT NULL
+    user_id INT NOT NULL
 );

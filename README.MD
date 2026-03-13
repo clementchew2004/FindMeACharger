@@ -13,3 +13,6 @@
 - Create schema: `npm run db:init`
 - Apply modifications: `npm run db:modify`
 - Populate sample data: `npm run db:populate`
+
+## Notes
+For the client please read [https://better-auth.com/docs/installation#create-client-instance](BetterAuth docs)

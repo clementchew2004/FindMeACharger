@@ -1,5 +1,5 @@
-INSERT INTO users (id, name, public_name, email) VALUES
-('9f192fc4-84b9-4171-aa82-876aa34a7f2a', 'mo_mo123', 'Mo', 'mo@example.com');
+INSERT INTO users (name, public_name, email) VALUES
+('mo_mo123', 'Mo', 'mo@example.com');
 
 INSERT INTO customers (user_id) VALUES
 ((SELECT id FROM users WHERE name = 'mo_mo123'));
