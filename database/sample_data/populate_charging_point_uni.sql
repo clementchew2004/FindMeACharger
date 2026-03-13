@@ -1,5 +1,5 @@
-INSERT INTO users (user_name, public_name) VALUES
-('isaac_lemon_grape', 'Isaac McCannon');
+INSERT INTO users (user_name, public_name, email) VALUES
+('isaac_lemon_grape', 'Isaac McCannon', 'isaacm@example.com');
 
 INSERT INTO organisations (organisation_name) VALUES
 ('Lemon Grape Charging Co.');

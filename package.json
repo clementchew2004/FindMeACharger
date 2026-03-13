@@ -1,0 +1,22 @@
+{
+  "name": "FindMeACharger",
+  "private": true,
+  "scripts": {
+    "db:init": "node scripts/db/db.js init",
+    "db:modify": "node scripts/db/db.js modify",
+    "db:populate": "node scripts/db/db.js populate"
+  },
+  "dependencies": {
+    "better-auth": "^1.5.5",
+    "dotenv": "^17.3.1",
+    "express": "^5.2.1",
+    "pg": "^8.20.0",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@types/node": "^25.5.0",
+    "ts-node": "^10.9.2",
+    "tslib": "^2.8.1",
+    "typescript": "^5.9.3"
+  }
+}
