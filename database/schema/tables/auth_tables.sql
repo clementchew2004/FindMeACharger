@@ -1,35 +1,29 @@
 CREATE TABLE IF NOT EXISTS session (
-    id TEXT PRIMARY KEY,
-    expires_at TIMESTAMP NOT NULL,
-    token TEXT NOT NULL UNIQUE,
-    created_at TIMESTAMP NOT NULL,
-    updated_at TIMESTAMP NOT NULL,
-    ip_address TEXT,
-    user_agent TEXT,
-    user_id INT NOT NULL REFERENCES users(user_id)
+    id TEXT NOT NULL PRIMARY KEY,
+    userId TEXT NOT NULL,
+    token TEXT NOT NULL,
+    expiresAt TIMESTAMPTZ NOT NULL,
+    ipAddress TEXT,
+    userAgent TEXT,
+    createdAt TIMESTAMPTZ NOT NULL,
+    updatedAt TIMESTAMPTZ NOT NULL,
 );
 
 CREATE TABLE IF NOT EXISTS account (
-    id TEXT PRIMARY KEY,
-    account_id TEXT NOT NULL,
-    provider_id TEXT NOT NULL,
-    user_id INT NOT NULL REFERENCES users(user_id),
-    access_token TEXT,
-    refresh_token TEXT,
-    id_token TEXT,
-    access_token_expires_at TIMESTAMP,
-    refresh_token_expires_at TIMESTAMP,
-    scope TEXT,
+    id TEXT NOT NULL PRIMARY KEY,
+    userId TEXT NOT NULL,
+    accountId TEXT NOT NULL,
+    providerId TEXT NOT NULL,
     password TEXT,
-    created_at TIMESTAMP NOT NULL,
-    updated_at TIMESTAMP NOT NULL
+    createdAt TIMESTAMPTZ NOT NULL,
+    updatedAt TIMESTAMPTZ NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS verification (
-    id TEXT PRIMARY KEY,
+    id TEXT NOT NULL PRIMARY KEY,
     identifier TEXT NOT NULL,
     value TEXT NOT NULL,
-    expires_at TIMESTAMP NOT NULL,
-    created_at TIMESTAMP,
-    updated_at TIMESTAMP
+    expiresAt TIMESTAMPTZ NOT NULL,
+    createdAt TIMESTAMPTZ NOT NULL,
+    updatedAt TIMESTAMPTZ NOT NULL
 );
