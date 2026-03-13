@@ -8,6 +8,7 @@ if "%PGPASSWORD%"=="unchanged" (
 @echo on
 psql -U postgres -d postgres -h localhost -p 5432 -q -f ./tables/create_database.sql
 psql -U postgres -d charging_point_database -h localhost -p 5432 -q -f ./tables/users.sql
+psql -U postgres -d charging_point_database -h localhost -p 5432 -q -f ./tables/auth_tables.sql
 psql -U postgres -d charging_point_database -h localhost -p 5432 -q -f ./tables/customers.sql
 psql -U postgres -d charging_point_database -h localhost -p 5432 -q -f ./tables/moderators.sql
 psql -U postgres -d charging_point_database -h localhost -p 5432 -q -f ./tables/operators.sql
