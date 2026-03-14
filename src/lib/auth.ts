@@ -6,11 +6,15 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 const resend = new Resend(process.env.RESEND_API_KEY);
+const authApiOrigin = process.env.AUTH_API_ORIGIN || 'http://localhost:8000';
+const clientOrigin = process.env.CLIENT_ORIGIN || 'http://localhost:5173';
 
 
 
 
 export const auth = betterAuth({
+  baseURL: authApiOrigin,
+  trustedOrigins: [clientOrigin, authApiOrigin],
   database: new Pool({
     host: process.env.DB_HOST || 'localhost',
     port: parseInt(process.env.DB_PORT || '5432', 10),
@@ -24,9 +28,29 @@ export const auth = betterAuth({
     maxUses: 7500,
     allowExitOnIdle: false,
   }),
+  user: {
+    additionalFields: {
+      publicName: {
+        type: "string",
+        required: false,
+        fieldName: "public_name"
+      },
+    },
+  },
   emailAndPassword: {
     enabled: true,
     requireEmailVerification: true,
+    minPasswordLength: 12,
+    autoSignIn: true,
+    sendResetPassword: async ({ user, url, token }) => {
+      resend.emails.send({
+        from: process.env.EMAIL_FROM!,
+        to: user.email,
+        subject: "Reset your password",
+        html: `<p>Click the link below to reset your password:</p>
+               <a href="${url}">Reset Password</a><p>If you did not request a password reset, you can safely ignore this email.</p>`,
+      });
+    }
   },
   emailVerification: {
     sendOnSignUp: true,
@@ -36,7 +60,7 @@ export const auth = betterAuth({
         from: process.env.EMAIL_FROM!,
         to: user.email,
         subject: "Verify your email address",
-        
+
         // TODO use a react component here e.g. @react-email/components
         html: `<p>Click the link below to verify your email:</p>
                        <a href="${url}">Verify Email</a>`,

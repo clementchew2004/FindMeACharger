@@ -1,29 +1,29 @@
 CREATE TABLE IF NOT EXISTS session (
     id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    userId INT NOT NULL,
+    "userId" INT NOT NULL,
     token TEXT NOT NULL,
-    expiresAt TIMESTAMPTZ NOT NULL,
-    ipAddress TEXT,
-    userAgent TEXT,
-    createdAt TIMESTAMPTZ NOT NULL,
-    updatedAt TIMESTAMPTZ NOT NULL,
+    "expiresAt" TIMESTAMPTZ NOT NULL,
+    "ipAddress" TEXT,
+    "userAgent" TEXT,
+    "createdAt" TIMESTAMPTZ NOT NULL,
+    "updatedAt" TIMESTAMPTZ NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS account (
     id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    userId INT NOT NULL,
-    accountId TEXT NOT NULL,
-    providerId TEXT NOT NULL,
+    "userId" INT NOT NULL,
+    "accountId" TEXT NOT NULL,
+    "providerId" TEXT NOT NULL,
     password TEXT,
-    createdAt TIMESTAMPTZ NOT NULL,
-    updatedAt TIMESTAMPTZ NOT NULL
+    "createdAt" TIMESTAMPTZ NOT NULL,
+    "updatedAt" TIMESTAMPTZ NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS verification (
     id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     identifier TEXT NOT NULL,
     value TEXT NOT NULL,
-    expiresAt TIMESTAMPTZ NOT NULL,
-    createdAt TIMESTAMPTZ NOT NULL,
-    updatedAt TIMESTAMPTZ NOT NULL
+    "expiresAt" TIMESTAMPTZ NOT NULL,
+    "createdAt" TIMESTAMPTZ NOT NULL,
+    "updatedAt" TIMESTAMPTZ NOT NULL
 );

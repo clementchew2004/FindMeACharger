@@ -1,11 +1,21 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
-import './App.css'
+import { useState } from 'react';
+import reactLogo from './assets/react.svg';
+import viteLogo from './assets/vite.svg';
+import heroImg from './assets/hero.png';
+import './App.css';
+import { EmailVerificationPage } from "@/components/email-verification-page";
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [count, setCount] = useState(0);
+
+  // to handle links from email verification flow
+  const path = window.location.pathname;
+  const isVerificationRoute =
+    path === "/verify-email" || path === "/api/auth/verify-email";
+
+  if (isVerificationRoute) {
+    return <EmailVerificationPage />;
+  }
 
   return (
     <>
@@ -115,7 +125,7 @@ function App() {
       <div className="ticks"></div>
       <section id="spacer"></section>
     </>
-  )
+  );
 }
 
-export default App
+export default App;

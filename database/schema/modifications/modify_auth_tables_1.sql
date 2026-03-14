@@ -1,2 +1,2 @@
 ALTER TABLE account
-    ADD UNIQUE (accountId, providerId);
+    ADD UNIQUE ("accountId", "providerId");

@@ -82,7 +82,7 @@ function getFileLists() {
       appDb: getEnvAny(['PGDATABASE', 'DB_NAME'], 'charging_point_database'),
       adminFiles: [resolveFromRoot('database', 'schema', 'tables', 'create_database.sql')],
       appFiles: [
-        resolveFromRoot('database', 'schema', 'tables', 'users.sql'),
+        resolveFromRoot('database', 'schema', 'tables', 'user.sql'),
         resolveFromRoot('database', 'schema', 'tables', 'auth_tables.sql'),
         resolveFromRoot('database', 'schema', 'tables', 'customers.sql'),
         resolveFromRoot('database', 'schema', 'tables', 'moderators.sql'),

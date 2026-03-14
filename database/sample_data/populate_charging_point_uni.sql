@@ -1,4 +1,4 @@
-INSERT INTO users (name, public_name, email) VALUES
+INSERT INTO "user" (name, public_name, email) VALUES
 ('isaac_lemon_grape', 'Isaac McCannon', 'isaacm@example.com');
 
 INSERT INTO organisations (organisation_name) VALUES
@@ -6,12 +6,12 @@ INSERT INTO organisations (organisation_name) VALUES
 
 INSERT INTO operators (user_id, organisation_id) VALUES
     (
-        (SELECT id FROM users WHERE name = 'isaac_lemon_grape'),
+        (SELECT id FROM "user" WHERE name = 'isaac_lemon_grape'),
         (SELECT organisation_id FROM organisations WHERE organisation_name = 'Lemon Grape Charging Co.')
     );
 
 UPDATE organisations 
-    SET organisation_owner_id = (SELECT id FROM users WHERE name = 'isaac_lemon_grape')
+    SET organisation_owner_id = (SELECT id FROM "user" WHERE name = 'isaac_lemon_grape')
     WHERE organisation_name = 'Lemon Grape Charging Co.';
 
 INSERT INTO charging_points (owner_id, charging_point_location, charging_point_description, latitude, longitude, shorthand_name) VALUES
