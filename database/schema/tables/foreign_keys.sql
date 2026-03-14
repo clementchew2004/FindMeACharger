@@ -3,13 +3,13 @@ ALTER TABLE charging_bays
 ALTER TABLE charging_bays
     ADD FOREIGN KEY (bay_type) REFERENCES bay_types(bay_type_id);
 ALTER TABLE moderators 
-    ADD FOREIGN KEY (user_id) REFERENCES users(user_id);
+    ADD FOREIGN KEY (user_id) REFERENCES users(id);
 ALTER TABLE bookings
     ADD FOREIGN KEY (customer_id) REFERENCES customers(customer_id);
 ALTER TABLE bookings
     ADD FOREIGN KEY (charging_bay_id) REFERENCES charging_bays(charging_bay_id);
 ALTER TABLE operators
-    ADD FOREIGN KEY (user_id) REFERENCES users(user_id);
+    ADD FOREIGN KEY (user_id) REFERENCES users(id);
 ALTER TABLE operators
     ADD FOREIGN KEY (organisation_id) REFERENCES organisations(organisation_id);
 ALTER TABLE organisations
@@ -25,4 +25,8 @@ ALTER TABLE reports
 ALTER TABLE charging_points
     ADD FOREIGN KEY (owner_id) REFERENCES organisations(organisation_id);
 ALTER TABLE customers
-    ADD FOREIGN KEY (user_id) REFERENCES users(user_id);
+    ADD FOREIGN KEY (user_id) REFERENCES users(id);
+ALTER TABLE session
+    ADD FOREIGN KEY (userId) REFERENCES users(id);
+ALTER TABLE account
+    ADD FOREIGN KEY (userId) REFERENCES users(id);
