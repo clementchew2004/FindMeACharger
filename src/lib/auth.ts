@@ -1,7 +1,8 @@
 import { betterAuth } from "better-auth";
+import dotenv from 'dotenv';
+import { randomUUID } from 'node:crypto';
 import { Pool } from "pg";
 import { Resend } from 'resend';
-import dotenv from 'dotenv';
 
 dotenv.config();
 
@@ -44,11 +45,14 @@ export const auth = betterAuth({
     autoSignIn: true,
     sendResetPassword: async ({ user, url, token }) => {
       resend.emails.send({
-        from: process.env.EMAIL_FROM!,
+        from: `FindMeACharger <${process.env.EMAIL_FROM!}>`,
         to: user.email,
         subject: "Reset your password",
-        html: `<p>Click the link below to reset your password:</p>
-               <a href="${url}">Reset Password</a><p>If you did not request a password reset, you can safely ignore this email.</p>`,
+        headers: {
+          'X-Entity-Ref-ID': randomUUID(), // prevent threading/grouping in email clients
+        },
+        html: `<p>Hi ${user.name},</p><p>Please click the link below to reset your FindMeACharger account password:</p>
+                       <a href="${url}">Reset Password</a><p>If you did not request a password reset, you can safely ignore this email.</p>`,
       });
     }
   },
@@ -57,12 +61,13 @@ export const auth = betterAuth({
     autoSignInAfterVerification: true,
     sendVerificationEmail: async ({ user, url, token }, request) => {
       resend.emails.send({
-        from: process.env.EMAIL_FROM!,
+        from: `FindMeACharger <${process.env.EMAIL_FROM!}>`,
         to: user.email,
         subject: "Verify your email address",
-
-        // TODO use a react component here e.g. @react-email/components
-        html: `<p>Click the link below to verify your email:</p>
+        headers: {
+          'X-Entity-Ref-ID': randomUUID(),
+        },
+        html: `<p>Hi ${user.name},</p><p>Please click the link below to verify your FindMeACharger account email:</p>
                        <a href="${url}">Verify Email</a>`,
       });
     },

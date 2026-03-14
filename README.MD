@@ -25,16 +25,4 @@
 3. `npm run dev`
 
 ## Notes
-For the client please read [https://better-auth.com/docs/installation#create-client-instance](BetterAuth docs)
-
-snippet for re-verifying email after failed login:
-```
-const { data, error } = await authClient.signIn.email({
-    email: "user@example.com",
-    password: "password123",
-});
-
-if (error?.status === 403) {
-    alert("Please verify your email before logging in.");
-}
-```
+- could use @react-email/components for emails
