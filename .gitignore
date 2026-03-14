@@ -1,5 +1,6 @@
 /database/*.sql.bak
 /database/*.log
 /database/backups/
-node_modules
+node_modules/
 **/*.env
+dist/
