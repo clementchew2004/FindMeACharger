@@ -11,7 +11,7 @@ INSERT INTO operators (user_id, organisation_id) VALUES
     );
 
 UPDATE organisations 
-    SET organisation_owner_id = (SELECT id FROM "user" WHERE name = 'isaac_lemon_grape')
+    SET organisation_owner_id = (SELECT operator_id FROM operators WHERE user_id = (SELECT id FROM "user" WHERE name = 'isaac_lemon_grape'))
     WHERE organisation_name = 'Lemon Grape Charging Co.';
 
 INSERT INTO charging_points (owner_id, charging_point_location, charging_point_description, latitude, longitude, shorthand_name) VALUES
