@@ -68,7 +68,12 @@ async function runSqlFiles({ database, files }) {
 
   try {
     for (const file of files) {
-      await runSqlFile(client, file);
+      try {
+        await runSqlFile(client, file);
+      }
+      catch (error) {
+        console.error("ERROR: Failed to execute sql file: ", file, "\n error was: ", error);
+      }
     }
   } finally {
     await client.end();
@@ -89,6 +94,7 @@ function getFileLists() {
         resolveFromRoot('database', 'schema', 'tables', 'operators.sql'),
         resolveFromRoot('database', 'schema', 'tables', 'organisations.sql'),
         resolveFromRoot('database', 'schema', 'tables', 'opening_times.sql'),
+        resolveFromRoot('database', 'schema', 'tables', 'locales.sql'),
         resolveFromRoot('database', 'schema', 'tables', 'charging_points.sql'),
         resolveFromRoot('database', 'schema', 'tables', 'charging_bays.sql'),
         resolveFromRoot('database', 'schema', 'tables', 'bookings.sql'),
@@ -106,6 +112,7 @@ function getFileLists() {
         resolveFromRoot('database', 'schema', 'modifications', 'modify_opening_times_1.sql'),
         resolveFromRoot('database', 'schema', 'modifications', 'modify_customers_1.sql'),
         resolveFromRoot('database', 'schema', 'modifications', 'modify_auth_tables_1.sql'),
+        resolveFromRoot('database', 'schema', 'modifications', 'modify_charging_points_2.sql'),
       ],
     },
 
@@ -114,6 +121,7 @@ function getFileLists() {
       appFiles: [
         resolveFromRoot('database', 'sample_data', 'populate_bay_types.sql'),
         resolveFromRoot('database', 'sample_data', 'populate_report_types.sql'),
+        resolveFromRoot('database', 'sample_data', 'populate_locales_english_uk.sql'),
         resolveFromRoot('database', 'sample_data', 'populate_charging_point_uni.sql'),
         resolveFromRoot('database', 'sample_data', 'populate_user_customer_mo.sql'),
       ],
@@ -138,12 +146,19 @@ async function main() {
     } catch (error) {
       if (isDuplicateDatabaseError(error)) {
         console.warn(`\nWARN: Database already exists; continuing.`);
-      } else {
+      } 
+      else {
         throw error;
       }
     }
 
-    await runSqlFiles({ database: appDb, files: appFiles });
+    try {
+      await runSqlFiles({ database: appDb, files: appFiles });
+    }
+    catch (error) {
+      throw error;
+    }
+    
     return;
   }
 
