@@ -116,6 +116,7 @@ function getFileLists() {
         resolveFromRoot('database', 'sample_data', 'populate_report_types.sql'),
         resolveFromRoot('database', 'sample_data', 'populate_charging_point_uni.sql'),
         resolveFromRoot('database', 'sample_data', 'populate_user_customer_mo.sql'),
+        resolveFromRoot('database', 'sample_data', 'populate_charging_bays_accessibility.sql'),
       ],
     },
   };
