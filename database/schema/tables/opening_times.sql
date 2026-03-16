@@ -6,7 +6,21 @@ i think wrapped closing times are valid, so we could have after dark opening tim
 to check for rollover.
 */
 
+DO $$
+BEGIN
+IF NOT EXISTS (
+SELECT 1
+FROM pg_type t
+JOIN pg_namespace n ON n.oid = t.typnamespace
+WHERE t.typname = 'day_of_week'
+AND n.nspname = 'public'
+) THEN
 CREATE TYPE day_of_week AS ENUM ('Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday');
+END IF;
+END
+$$;
+
+
 
 CREATE TABLE IF NOT EXISTS opening_times (
     opening_time_id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
