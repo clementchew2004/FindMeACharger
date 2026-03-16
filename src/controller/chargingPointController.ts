@@ -3,8 +3,6 @@ import { pool } from "../lib/db";
 
 export const getChargingPointStatus = async (req: Request, res: Response) => {
     const { id } = req.params;
-    console.log("Charging point ID received:", id);
-
     try {
         const result = await pool.query(
             `
@@ -29,7 +27,6 @@ export const getChargingPointStatus = async (req: Request, res: Response) => {
             `,
             [id]
         );
-        console.log("Rows returned:", result.rows);
 
         if (result.rows.length === 0) {
             return res.status(404).json({error: "Charging point not found"});
