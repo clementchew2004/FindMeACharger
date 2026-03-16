@@ -4,6 +4,7 @@ import { EmailVerificationPage } from "@/components/email-verification-page";
 import LoginPage from "./pages/LoginPage";
 import MainPage from "./pages/MainPage";
 import SignupPage from "./pages/SignupPage";
+import MapRoutingPage from "./pages/MapRoutingPage";
 
 function App() {
 
@@ -22,6 +23,7 @@ function App() {
         <Route path="/" element={<LoginPage />}></Route>
         <Route path="/main" element={<MainPage />}></Route>
         <Route path="/signup" element={<SignupPage />} />
+        <Route path="/routing" element={<MapRoutingPage />} />
       </Routes>
     </BrowserRouter>
     
