@@ -3,7 +3,7 @@ import cors from "cors";
 import express from "express";
 import { auth } from "./lib/auth";
 import chargingPointsRoutes from "./routes/chargingPointsRoutes";
-
+import mapRoutes from "./routes/mapRoutes";
 
 const app = express();
 const port = 8000;
@@ -19,6 +19,7 @@ app.all('/api/auth/{*any}', toNodeHandler(auth));
 app.use(express.json());
 
 app.use("/api", chargingPointsRoutes);
+app.use("/api", mapRoutes);
 
 app.listen(port, () => {
   console.log(`API listening on port ${port}`);
