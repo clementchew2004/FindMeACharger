@@ -127,27 +127,32 @@ const MapRoutingPage = () => {
 
             <div style={{ marginBottom: "10px" }}>
               <p style={{ fontWeight: "bold", marginBottom: "5px" }}>Cost:</p>
-              <label style={{ display: "block", alignItems: "center", gap: "8px" }}>
-                <input type="checkbox" /> Free
+              <label style={{ display: "block", marginBottom: "4px" }}>
+                <input type="checkbox" style={{ marginRight: "8px", marginTop: "20px" }} />
+                <span style={{ position: "relative", top: "-25px" }}>Free</span>
               </label>
-              <label style={{ display: "block", alignItems: "center", gap: "8px" }}>
-                <input type="checkbox" /> Paid
+              <label style={{ display: "block", marginBottom: "4px" }}>
+                <input type="checkbox" style={{ marginRight: "8px", marginTop: "2px" }} />
+                <span style={{ position: "relative", top: "-25px" }}>Paid</span>
               </label>
             </div>
 
-            <div style={{ marginBottom: "30px" }}>
-              <label style={{ display: "block", alignItems: "center", gap: "8px", fontWeight: "bold" }}>
-                <input type="checkbox" /> Available only
+            <div style={{ marginBottom: "10px" }}>
+              <label style={{ display: "block", fontWeight: "bold" }}>
+                <input type="checkbox" style={{ marginRight: "8px", marginTop: "2px" }} />
+                <span style={{ position: "relative", top: "-25px" }}>Available only</span>
               </label>
             </div>
 
             <div>
-              <p style={{ fontWeight: "bold", marginBottom: "5px" }}>Accessibility:</p>
-              <label style={{ display: "block", alignItems: "center", gap: "8px" }}>
-                <input type="checkbox" /> Wheelchair access
+              <p style={{ fontWeight: "bold", marginTop: "5px" }}>Accessibility:</p>
+              <label style={{ display: "block", marginBottom: "4px" }}>
+                <input type="checkbox" style={{ marginRight: "8px", marginTop: "10px" }} />
+                <span style={{ position: "relative", top: "-25px" }}>Wheelchair access</span>
               </label>
-              <label style={{ display: "block", alignItems: "center", gap: "8px" }}>
-                <input type="checkbox" /> No blocked sockets
+              <label style={{ display: "block", marginBottom: "4px" }}>
+                <input type="checkbox" style={{ marginRight: "8px", marginTop: "10px" }} />
+                <span style={{ position: "relative", top: "-25px" }}>No blocked sockets</span>
               </label>
             </div>
           </div>
