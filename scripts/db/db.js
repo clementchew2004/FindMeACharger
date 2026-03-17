@@ -72,7 +72,12 @@ async function runSqlFiles({ database, files }) {
         await runSqlFile(client, file);
       }
       catch (error) {
-        console.error("ERROR: Failed to execute sql file: ", file, "\n error was: ", error);
+        if (error.code === '23505') {
+          console.warn(`\nWARN: Duplicate entry error while executing ${file}; details: ${error.detail}`);
+        }
+        else {
+          console.error("ERROR: Failed to execute sql file: ", file, "\n", error);
+        }
       }
     }
   } finally {
@@ -125,6 +130,9 @@ function getFileLists() {
         resolveFromRoot('database', 'sample_data', 'populate_charging_point_uni.sql'),
         resolveFromRoot('database', 'sample_data', 'populate_user_customer_mo.sql'),
         resolveFromRoot('database', 'sample_data', 'populate_charging_bays_accessibility.sql'),
+        resolveFromRoot('database', 'sample_data', 'populate_operator_supaspeed.sql'),
+        resolveFromRoot('database', 'sample_data', 'populate_charging_points_2.sql'),
+        resolveFromRoot('database', 'sample_data', 'populate_charging_points_2_dynamic.sql'),
       ],
     },
   };
