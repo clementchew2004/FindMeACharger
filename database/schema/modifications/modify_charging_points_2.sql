@@ -6,3 +6,6 @@ ALTER TABLE charging_points
 
 ALTER TABLE charging_points
     ALTER COLUMN longitude TYPE DECIMAL(11, 8);
+
+ALTER TABLE charging_points
+    ALTER COLUMN shorthand_name TYPE VARCHAR(16);
