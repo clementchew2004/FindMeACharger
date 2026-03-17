@@ -14,7 +14,7 @@ export default function LoginPage() {
 
       <div>
         <button onClick={() => navigate("/main")}>Login</button>
-        <button onClick={() => navigate("/main")}>Continue without login (for development)</button>
+        <button onClick={() => navigate("/routing")}>Continue without login (for development)</button>
       </div>
 
       <p>

@@ -30,3 +30,10 @@ ALTER TABLE session
     ADD FOREIGN KEY ("userId") REFERENCES "user"(id);
 ALTER TABLE account
     ADD FOREIGN KEY ("userId") REFERENCES "user"(id);
+
+ALTER TABLE locales
+    ADD FOREIGN KEY (language_id) REFERENCES languages(language_id) ON DELETE CASCADE;
+
+ALTER TABLE localised_charging_point_descriptions
+    ADD FOREIGN KEY (charging_point_id) REFERENCES charging_points(charging_point_id) ON DELETE CASCADE,
+    ADD FOREIGN KEY (locale_id) REFERENCES locales(locale_id) ON DELETE CASCADE;
