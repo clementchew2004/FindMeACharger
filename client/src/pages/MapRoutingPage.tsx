@@ -51,6 +51,7 @@ const MapRoutingPage = () => {
   const [points, setPoints] = useState<{ start: LatLngExpression, end: LatLngExpression; } | null>(null);
   const [showFilters, setShowFilters] = useState(false);
   const [maxDistance, setMaxDistance] = useState(10);
+  const [showMarkerInfo, setShowMarkerInfo] = useState(false);
 
   const getRoute = async () => {
     // ORS uses "longitude,latitude"
@@ -172,6 +173,30 @@ const MapRoutingPage = () => {
 
       </div>
       <div style={{ flex: 1, position: "relative" }}>
+        {showMarkerInfo && (
+          <div style={{
+            position: "absolute",
+            bottom: "20px",
+            left: "50%",
+            transform: "translateX(-50%)",
+            background: "white",
+            padding: "20px",
+            borderRadius: "8px",
+            boxShadow: "0 2px 10px rgba(0,0,0,0.3)",
+            zIndex: 1000,
+            width: "280px"
+          }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "10px" }}>
+              <h3 style={{ margin: 0 }}>Location B</h3>
+              <button onClick={() => setShowMarkerInfo(false)}>✕</button>
+            </div>
+          </div>
+        )}
+
+
+
+
+
         <MapContainer zoomSnap={0.2} center={uob} zoom={15} style={{ height: "100%", width: "100%", position: "absolute", top: 0, left: 0 }}>
           <TileLayer
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -180,7 +205,7 @@ const MapRoutingPage = () => {
           {points && (
             <>
               <Marker position={points.start} icon={iconA} />
-              <Marker position={points.end} icon={iconB} />
+              <Marker position={points.end} icon={iconB} eventHandlers={{click: () => setShowMarkerInfo(true)}} />
             </>
           )}
           {routeData && (
