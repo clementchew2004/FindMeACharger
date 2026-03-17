@@ -50,6 +50,7 @@ const MapRoutingPage = () => {
   const [routeSummary, setRouteSummary] = useState<{ distance: string, duration: number; } | null>(null);
   const [points, setPoints] = useState<{ start: LatLngExpression, end: LatLngExpression; } | null>(null);
   const [showFilters, setShowFilters] = useState(false);
+  const [maxDistance, setMaxDistance] = useState(10);
 
   const getRoute = async () => {
     // ORS uses "longitude,latitude"
@@ -108,21 +109,32 @@ const MapRoutingPage = () => {
             position: "absolute",
             top: "88px",
             left: "100px",
-            height: "300%",
+            height: "auto",
+            maxHeight: "80vh",
             background: "white",
             padding: "20px",
             boxShadow: "-4px 0 10px rgba(0,0,0,0.2)",
-            width: "300px",
+            width: "auto",
+            maxWidth: "300px",
             zIndex: 1000,
             overflowY: "auto",
             boxSizing: "border-box",
             textAlign: "left"
           }}>
-            <h2 style={{ marginBottom: "20px" }}>Filters</h2>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
+              <h2 style={{ margin: 0 }}>Filters</h2>
+              <button onClick={() => setShowFilters(false)}>Apply Filters</button>
+            </div>
 
             <div style={{ marginBottom: "20px" }}>
-              <label style={{ fontWeight: "bold" }}>Max Distance (km)</label>
-              <input type="range" min="1" max="20" style={{ width: "80%" }} />
+              <label style={{ fontWeight: "bold" }}>Max Distance (km): {maxDistance}</label>
+              <input 
+                type="range"
+                min="1"
+                max="20"
+                value={maxDistance}
+                style={{ width: "80%" }} 
+                onChange={(e) => setMaxDistance(Number(e.target.value))}/>
             </div>
 
             <div style={{ marginBottom: "10px" }}>
