@@ -129,6 +129,7 @@ function getFileLists() {
         resolveFromRoot('database', 'sample_data', 'populate_locales_english_uk.sql'),
         resolveFromRoot('database', 'sample_data', 'populate_charging_point_uni.sql'),
         resolveFromRoot('database', 'sample_data', 'populate_user_customer_mo.sql'),
+        resolveFromRoot('database', 'sample_data', 'populate_charging_bays_accessibility.sql'),
         resolveFromRoot('database', 'sample_data', 'populate_operator_supaspeed.sql'),
         resolveFromRoot('database', 'sample_data', 'populate_charging_points_2.sql'),
         resolveFromRoot('database', 'sample_data', 'populate_charging_points_2_dynamic.sql'),
