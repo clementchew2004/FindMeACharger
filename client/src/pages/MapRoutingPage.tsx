@@ -49,6 +49,7 @@ const MapRoutingPage = () => {
   const [routeData, setRouteData] = useState<any>(null);
   const [routeSummary, setRouteSummary] = useState<{ distance: string, duration: number; } | null>(null);
   const [points, setPoints] = useState<{ start: LatLngExpression, end: LatLngExpression; } | null>(null);
+  const [showFilters, setShowFilters] = useState(false);
 
   const getRoute = async () => {
     // ORS uses "longitude,latitude"
@@ -86,7 +87,14 @@ const MapRoutingPage = () => {
 
   return (
     <div style={{ height: "100dvh", display: "flex", flexDirection: "column" }}>
-      <div style={{ padding: "10px", flexShrink: 0 }}>
+      <div style={{ padding: "10px", flexShrink: 0, position: "relative" }}>
+        <input
+          placeholder="Search location"
+          style= {{ padding: "8px", marginRight: "10px" }}
+        />
+
+        <button onClick={() => setShowFilters(!showFilters)}>Filters</button>
+
         <button onClick={getRoute} style={{ padding: "10px", fontSize: "16px" }}>Calculate route</button>
         {routeSummary && (
           <div style={{ marginTop: "10px", fontSize: "16px" }}>
@@ -94,6 +102,57 @@ const MapRoutingPage = () => {
             <p>Duration: {routeSummary.duration} minutes</p>
           </div>
         )}
+
+        {showFilters && (
+          <div style={{
+            position: "absolute",
+            top: "88px",
+            left: "100px",
+            height: "300%",
+            background: "white",
+            padding: "20px",
+            boxShadow: "-4px 0 10px rgba(0,0,0,0.2)",
+            width: "300px",
+            zIndex: 1000,
+            overflowY: "auto",
+            boxSizing: "border-box",
+            textAlign: "left"
+          }}>
+            <h2 style={{ marginBottom: "20px" }}>Filters</h2>
+
+            <div style={{ marginBottom: "20px" }}>
+              <label style={{ fontWeight: "bold" }}>Max Distance (km)</label>
+              <input type="range" min="1" max="20" style={{ width: "80%" }} />
+            </div>
+
+            <div style={{ marginBottom: "10px" }}>
+              <p style={{ fontWeight: "bold", marginBottom: "5px" }}>Cost:</p>
+              <label style={{ display: "block", alignItems: "center", gap: "8px" }}>
+                <input type="checkbox" /> Free
+              </label>
+              <label style={{ display: "block", alignItems: "center", gap: "8px" }}>
+                <input type="checkbox" /> Paid
+              </label>
+            </div>
+
+            <div style={{ marginBottom: "30px" }}>
+              <label style={{ display: "block", alignItems: "center", gap: "8px", fontWeight: "bold" }}>
+                <input type="checkbox" /> Available only
+              </label>
+            </div>
+
+            <div>
+              <p style={{ fontWeight: "bold", marginBottom: "5px" }}>Accessibility:</p>
+              <label style={{ display: "block", alignItems: "center", gap: "8px" }}>
+                <input type="checkbox" /> Wheelchair access
+              </label>
+              <label style={{ display: "block", alignItems: "center", gap: "8px" }}>
+                <input type="checkbox" /> No blocked sockets
+              </label>
+            </div>
+          </div>
+        )}
+
       </div>
       <div style={{ flex: 1, position: "relative" }}>
         <MapContainer zoomSnap={0.2} center={uob} zoom={15} style={{ height: "100%", width: "100%", position: "absolute", top: 0, left: 0 }}>
