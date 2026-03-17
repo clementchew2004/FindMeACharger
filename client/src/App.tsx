@@ -5,6 +5,7 @@ import LoginPage from "./pages/LoginPage";
 import MainPage from "./pages/MainPage";
 import SignupPage from "./pages/SignupPage";
 import MapRoutingPage from "./pages/MapRoutingPage";
+import ReportPage from "./pages/ReportPage";
 
 function App() {
 
@@ -24,6 +25,7 @@ function App() {
         <Route path="/main" element={<MainPage />}></Route>
         <Route path="/signup" element={<SignupPage />} />
         <Route path="/routing" element={<MapRoutingPage />} />
+        <Route path="/report" element={<ReportPage />} />
       </Routes>
     </BrowserRouter>
     
