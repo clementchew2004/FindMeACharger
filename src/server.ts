@@ -4,6 +4,7 @@ import express from "express";
 import { auth } from "./lib/auth";
 import chargingPointsRoutes from "./routes/chargingPointsRoutes";
 import mapRoutes from "./routes/mapRoutes";
+import reportRoutes from "./routes/reportsRoutes";
 
 const app = express();
 const port = 8000;
@@ -20,6 +21,7 @@ app.use(express.json());
 
 app.use("/api", chargingPointsRoutes);
 app.use("/api", mapRoutes);
+app.use("/api", reportRoutes)
 
 app.listen(port, () => {
   console.log(`API listening on port ${port}`);
