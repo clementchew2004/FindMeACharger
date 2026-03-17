@@ -190,6 +190,11 @@ const MapRoutingPage = () => {
               <h3 style={{ margin: 0 }}>Location B</h3>
               <button onClick={() => setShowMarkerInfo(false)}>✕</button>
             </div>
+            <p><strong>Availability:</strong> (Available or Busy)</p>
+            <p><strong>Cost:</strong> (Free or price)</p>
+            <p><strong>Wheelchair access:</strong> (Yes or No)</p>
+            <p><strong>Blocked sockets:</strong> (Yes or No)</p>
+            <p><strong>User Reports:</strong> (Reports)</p>
           </div>
         )}
 
