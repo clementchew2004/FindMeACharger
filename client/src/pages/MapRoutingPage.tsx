@@ -90,6 +90,7 @@ const MapRoutingPage = () => {
   return (
     <div style={{ height: "100dvh", display: "flex", flexDirection: "column" }}>
       <div style={{ padding: "10px", flexShrink: 0, position: "relative" }}>
+        <button style={{ float: "right", marginRight: "10px" }}>My Profile</button>
         <input
           placeholder="Search location"
           style= {{ padding: "8px", marginRight: "10px" }}
@@ -197,10 +198,6 @@ const MapRoutingPage = () => {
             <p><strong>User Reports:</strong> (Reports)</p>
           </div>
         )}
-
-
-
-
 
         <MapContainer zoomSnap={0.2} center={uob} zoom={15} style={{ height: "100%", width: "100%", position: "absolute", top: 0, left: 0 }}>
           <TileLayer
