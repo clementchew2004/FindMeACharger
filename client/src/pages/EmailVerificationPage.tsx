@@ -53,7 +53,7 @@ function getApiErrorCode(payload: unknown): string | undefined {
   return undefined;
 }
 
-export function EmailVerificationPage() {
+export default function EmailVerificationPage() {
   const params = useMemo(() => new URLSearchParams(window.location.search), []);
   const [state, setState] = useState<VerificationState>({
     loading: true,
