@@ -6,5 +6,9 @@ export const pool = new Pool ({
     user: process.env.DB_USER || "postgres",
     password: process.env.DB_PASSWORD, 
     database: process.env.DB_NAME || "charging_point_database",
+    max: 10,
+    min: 0,
+    idleTimeoutMillis: 20000,
+    connectionTimeoutMillis: 5000,
+    allowExitOnIdle: false,
 });
-

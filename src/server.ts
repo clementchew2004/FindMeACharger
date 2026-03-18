@@ -2,6 +2,7 @@ import { toNodeHandler } from "better-auth/node";
 import cors from "cors";
 import express from "express";
 import { auth } from "./lib/auth";
+import { authMiddleware } from "./middleware/auth";
 import chargingPointsRoutes from "./routes/chargingPointsRoutes";
 import mapRoutes from "./routes/mapRoutes";
 
@@ -14,10 +15,12 @@ app.use(
     credentials: true,
   })
 );
+
 app.all('/api/auth/{*any}', toNodeHandler(auth));
 
 app.use(express.json());
 
+app.use("/api", authMiddleware); // require login for all routes under /api
 app.use("/api", chargingPointsRoutes);
 app.use("/api", mapRoutes);
 
