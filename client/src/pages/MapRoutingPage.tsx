@@ -1,10 +1,11 @@
-import L, { type LatLngExpression } from "leaflet";
+import L, { LatLng } from "leaflet";
 import "leaflet/dist/leaflet.css";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { GeoJSON, MapContainer, Marker, TileLayer, useMap } from "react-leaflet";
+import { Button } from "@/components/ui/button";
 
 const API_BASE: string = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
-const uob = [52.449832, -1.930633] as LatLngExpression;
+const uob = new LatLng(52.449832, -1.930633);
 
 const iconA = L.divIcon({
   className: "marker-a",
@@ -32,6 +33,19 @@ const iconB = L.divIcon({
   iconAnchor: [16, 42]
 });
 
+const iconOption = L.divIcon({
+  className: "marker-c",
+  html: `
+    <div style="position: relative; width: 32px; height: 32px;">
+      <svg viewBox="0 0 384 512" fill="#e75dd7" xmlns="http://www.w3.org/2000/svg">
+        <path d="M172.268 501.67C26.97 291.031 0 269.413 0 192 0 85.961 85.961 0 192 0s192 85.961 192 192c0 77.413-26.97 99.031-172.268 309.67-9.535 13.774-29.93 13.773-39.464 0z"/>
+      </svg>
+      <div style="position: absolute; top: 7px; left: 0; width: 100%; text-align: center; color: white; font-weight: bold; font-family: sans-serif; font-size: 14px;">C</div>
+    </div>`,
+  iconSize: [32, 42],
+  iconAnchor: [16, 42]
+});
+
 const FitBounds = ({ data }: { data: any; }) => {
   const map = useMap();
 
@@ -48,29 +62,74 @@ const FitBounds = ({ data }: { data: any; }) => {
 const MapRoutingPage = () => {
   const [routeData, setRouteData] = useState<any>(null);
   const [routeSummary, setRouteSummary] = useState<{ distance: string, duration: number; } | null>(null);
-  const [points, setPoints] = useState<{ start: LatLngExpression, end: LatLngExpression; } | null>(null);
   const [showFilters, setShowFilters] = useState(false);
-  const [maxDistance, setMaxDistance] = useState(10);
+  const [maxDistance, setMaxDistance] = useState(30);
   const [showMarkerInfo, setShowMarkerInfo] = useState(false);
+  const [location, setLocation] = useState<{position: LatLng, error: string | null}>({position: uob, error: null});
+  const [chargingPoints, setChargingPoints] = useState<any>([]);
+  const [targetPoint, setTargetPoint] = useState<any>(null);
+  const [targetPointBays, setTargetPointBays] = useState<any>(null);
+  const geoJSONReference = useRef<any>(null);
+
+  useEffect(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setLocation({
+            position: new LatLng(position.coords.latitude, position.coords.longitude),
+            error: null
+          });
+        },
+        (error) => {
+          setLocation({
+            position: uob,
+            error: error.message
+          });
+        },
+        {
+          enableHighAccuracy: true
+        }
+      );
+  }}, []);
+
+  useEffect(() => {
+    fetch(`${API_BASE}/api/charging-points/nearby?longitude=${location.position.lng}&latitude=${location.position.lat}&maxDistance=${maxDistance}`)
+      .then(response => {
+        if (response.status === 204 || response.status === 500) return [];
+        else return response.json();
+      })
+      .then(data => {
+        setChargingPoints(data);
+      })
+      .catch(console.error);
+
+  }, [location, maxDistance]);
+
+  useEffect(() => {
+    if (!targetPoint) return;
+    fetch(`${API_BASE}/api/charging-points/${targetPoint.charging_point_id}/status`)
+      .then(response => {
+        if (response.status === 404 || response.status === 500) return null;
+        else return response.json();
+      })
+      .then(data => setTargetPointBays(data))
+      .catch(console.error);
+  }, [targetPoint]);
 
   const getRoute = async () => {
     // ORS uses "longitude,latitude"
-    const startStr = "-1.937164239160982,52.45091210333653";
-    const endStr = "-1.9275811045035742,52.44941355656794";
-
-    const startCoords = startStr.split(",").map(Number);
-    const endCoords = endStr.split(",").map(Number);
-
-    setPoints({
-      start: [startCoords[1], startCoords[0]],
-      end: [endCoords[1], endCoords[0]]
-    });
+    const startStr = `${(location.position.lng)},${location.position.lat}`;
+    const endStr = `${targetPoint.longitude},${targetPoint.latitude}`
 
     try {
       const response = await fetch(`${API_BASE}/api/get-route?start=${startStr}&end=${endStr}`);
       if (response.ok) {
         const data = await response.json();
         setRouteData(data);
+        if (geoJSONReference.current) {
+          geoJSONReference.current.clearLayers();
+          geoJSONReference.current.addData(data);
+        }
 
         if (data.features && data.features.length > 0) {
           const summary = data.features[0].properties.summary;
@@ -174,7 +233,7 @@ const MapRoutingPage = () => {
 
       </div>
       <div style={{ flex: 1, position: "relative" }}>
-        {showMarkerInfo && (
+        {showMarkerInfo && targetPoint && (
           <div style={{
             position: "absolute",
             bottom: "20px",
@@ -185,34 +244,86 @@ const MapRoutingPage = () => {
             borderRadius: "8px",
             boxShadow: "0 2px 10px rgba(0,0,0,0.3)",
             zIndex: 1000,
-            width: "280px"
+            //width: "280px"
           }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "10px" }}>
-              <h3 style={{ margin: 0 }}>Location B</h3>
-              <button onClick={() => setShowMarkerInfo(false)}>✕</button>
+            <div>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "10px" }}>
+                <h3 style={{ margin: 0 }}>{targetPoint.shorthand_name}</h3>
+                <button onClick={() => setShowMarkerInfo(false)}>✕</button>
+              </div>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "10px" }}>
+                <div>
+                  <p><strong>Availability:</strong> {targetPointBays ? (targetPointBays.overallStatus) : "loading.."}</p>
+                  <p><strong>Cost:</strong> (Free or price)</p>
+                  <p><strong>Wheelchair access:</strong> (Yes or No)</p>
+                  <p><strong>Blocked sockets:</strong> (Yes or No)</p>
+                  <p><strong>User Reports:</strong> (Reports)</p>
+                </div>
+                {targetPointBays && (
+                <table>
+                  <thead>
+                    <tr>
+                      <td><strong>Bay</strong></td>
+                      <td><strong>Charger Type</strong></td>
+                      <td><strong>Availability</strong></td>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {targetPointBays.bays.map((bay : any) => (
+                      <tr key={bay.charging_bay_id}>
+                        <td>Bay {bay.charging_bay_number}</td>
+                        <td>{bay.bay_type_name}</td>
+                        <td>{bay.status}</td>
+                        <td>
+                          {bay.status === "available" ?
+                            <button style={{
+                              backgroundColor: "limegreen"
+                            }}>Book</button> :
+                            <button style={{
+                              backgroundColor: "red"
+                            }}
+                            disabled={true}>Busy</button>
+                          }
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+                )}
+              </div>
+              
             </div>
-            <p><strong>Availability:</strong> (Available or Busy)</p>
-            <p><strong>Cost:</strong> (Free or price)</p>
-            <p><strong>Wheelchair access:</strong> (Yes or No)</p>
-            <p><strong>Blocked sockets:</strong> (Yes or No)</p>
-            <p><strong>User Reports:</strong> (Reports)</p>
+            
           </div>
         )}
 
-        <MapContainer zoomSnap={0.2} center={uob} zoom={15} style={{ height: "100%", width: "100%", position: "absolute", top: 0, left: 0 }}>
+        <MapContainer zoomSnap={0.2} center={location.position} zoom={15} style={{ height: "100%", width: "100%", position: "absolute", top: 0, left: 0 }}>
           <TileLayer
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           />
-          {points && (
-            <>
-              <Marker position={points.start} icon={iconA} />
-              <Marker position={points.end} icon={iconB} eventHandlers={{click: () => setShowMarkerInfo(true)}} />
-            </>
-          )}
+          {location && <Marker position={location.position} icon={iconA} />}
+          {targetPoint && <Marker position={new LatLng(targetPoint.latitude, targetPoint.longitude)} icon={iconB} eventHandlers={{click: () => setShowMarkerInfo(true)}} />}
+          {
+            chargingPoints && chargingPoints.length > 0 && chargingPoints.filter((point : any) => !targetPoint || point.charging_point_id !== targetPoint.charging_point_id).map((point: any) => (
+                  <Marker
+                    key={point.charging_point_id}
+                    position={new LatLng(point.latitude, point.longitude)}
+                    icon={iconOption}
+                    eventHandlers = {
+                      {
+                        click: () => {
+                          setTargetPoint(point);
+                          setShowMarkerInfo(true);
+                        }
+                      }
+                    }
+                  />
+                ))
+          }
           {routeData && (
             <>
-              <GeoJSON data={routeData} style={{ color: "#3f00f6", weight: 7 }} />
+              <GeoJSON data={routeData} ref={(layer) => {geoJSONReference.current = layer}} style={{ color: "#3f00f6", weight: 7 }} />
               <FitBounds data={routeData} />
             </>
           )}

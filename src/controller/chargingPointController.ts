@@ -38,7 +38,7 @@ export const getChargingPointStatus = async (req: Request, res: Response) => {
 
         res.json({
             chargingPointId: id,
-            overallStatus,
+            status: overallStatus,
             bays: result.rows,
         });
     } catch (error) {
@@ -111,6 +111,8 @@ export const getChargingPointsWithinDistance = async (req: Request, res: Respons
                         sin(radians($1)) * sin(radians(point.latitude))
                     )
                 ) AS distance,
+                point.latitude,
+                point.longitude,
                 point.shorthand_name,
                 point.charging_point_location
             FROM 
