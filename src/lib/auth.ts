@@ -1,7 +1,6 @@
 import { betterAuth } from "better-auth";
 import dotenv from 'dotenv';
 import { randomUUID } from 'node:crypto';
-import { Pool } from "pg";
 import { Resend } from 'resend';
 import { pool } from "./db";
 
@@ -10,8 +9,6 @@ dotenv.config();
 const resend = new Resend(process.env.RESEND_API_KEY);
 const authApiOrigin = process.env.AUTH_API_ORIGIN || 'http://localhost:8000';
 const clientOrigin = process.env.CLIENT_ORIGIN || 'http://localhost:5173';
-
-
 
 
 export const auth = betterAuth({
@@ -33,6 +30,8 @@ export const auth = betterAuth({
     minPasswordLength: 12,
     autoSignIn: true,
     sendResetPassword: async ({ user, url, token }) => {
+      const resetPasswordUrl = `${clientOrigin}/reset-password?token=${token}`;
+
       resend.emails.send({
         from: `FindMeACharger <${process.env.EMAIL_FROM!}>`,
         to: user.email,
@@ -41,7 +40,7 @@ export const auth = betterAuth({
           'X-Entity-Ref-ID': randomUUID(), // prevent threading/grouping in email clients
         },
         html: `<p>Hi ${user.name},</p><p>Please click the link below to reset your FindMeACharger account password:</p>
-                       <a href="${url}">Reset Password</a><p>If you did not request a password reset, you can safely ignore this email.</p>`,
+                       <a href="${resetPasswordUrl}">Reset Password</a><p>If you did not request a password reset, you can safely ignore this email.</p>`,
       });
     }
   },
@@ -49,6 +48,8 @@ export const auth = betterAuth({
     sendOnSignUp: true,
     autoSignInAfterVerification: true,
     sendVerificationEmail: async ({ user, url, token }, request) => {
+      const verificationUrl = `${clientOrigin}/verify-email?token=${token}`;
+
       resend.emails.send({
         from: `FindMeACharger <${process.env.EMAIL_FROM!}>`,
         to: user.email,
@@ -57,7 +58,7 @@ export const auth = betterAuth({
           'X-Entity-Ref-ID': randomUUID(),
         },
         html: `<p>Hi ${user.name},</p><p>Please click the link below to verify your FindMeACharger account email:</p>
-                       <a href="${url}">Verify Email</a>`,
+                       <a href="${verificationUrl}">Verify Email</a>`,
       });
     },
   },

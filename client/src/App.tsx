@@ -13,7 +13,6 @@ function App() {
         <Route path="/signup" element={<SignupPage />} />
         <Route path="/routing" element={<MapRoutingPage />} />
         <Route path="/verify-email" element={<EmailVerificationPage />} />
-        <Route path="/api/auth/verify-email" element={<EmailVerificationPage />} />
       </Routes>
     </BrowserRouter>
   );
