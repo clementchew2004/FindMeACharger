@@ -21,6 +21,10 @@ export const getReportType = async(req: Request, res: Response) => {
 }
 
 export const createReport = async (req: Request, res: Response) => {
+    if(!req.body) {
+        res.status(500).json({error: "Request body is missing"})
+    }
+    
     const{ 
         reporter_id,
         charging_point_id,
