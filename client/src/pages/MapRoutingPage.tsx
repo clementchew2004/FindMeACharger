@@ -1,7 +1,8 @@
 import L, { LatLng } from "leaflet";
 import "leaflet/dist/leaflet.css";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { GeoJSON, MapContainer, Marker, TileLayer, useMap } from "react-leaflet";
+import { NavLink } from "react-router-dom";
 
 const API_BASE: string = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
 const uob = new LatLng(52.449832, -1.930633);
@@ -64,7 +65,7 @@ const MapRoutingPage = () => {
   const [showFilters, setShowFilters] = useState(false);
   const [maxDistance, setMaxDistance] = useState(30);
   const [showMarkerInfo, setShowMarkerInfo] = useState(false);
-  const [location, setLocation] = useState<{position: LatLng, error: string | null}>({position: uob, error: null});
+  const [location, setLocation] = useState<{ position: LatLng, error: string | null; }>({ position: uob, error: null });
   const [chargingPoints, setChargingPoints] = useState<any>([]);
   const [targetPoint, setTargetPoint] = useState<any>(null);
   const [targetPointBays, setTargetPointBays] = useState<any>(null);
@@ -89,7 +90,8 @@ const MapRoutingPage = () => {
           enableHighAccuracy: true
         }
       );
-  }}, []);
+    }
+  }, []);
 
   useEffect(() => {
     fetch(`${API_BASE}/api/charging-points/nearby?longitude=${location.position.lng}&latitude=${location.position.lat}&maxDistance=${maxDistance}`)
@@ -118,7 +120,7 @@ const MapRoutingPage = () => {
   const getRoute = async () => {
     // ORS uses "longitude,latitude"
     const startStr = `${(location.position.lng)},${location.position.lat}`;
-    const endStr = `${targetPoint.longitude},${targetPoint.latitude}`
+    const endStr = `${targetPoint.longitude},${targetPoint.latitude}`;
 
     try {
       const response = await fetch(`${API_BASE}/api/get-route?start=${startStr}&end=${endStr}`);
@@ -145,13 +147,35 @@ const MapRoutingPage = () => {
     }
   };
 
+  const navLinkStyle: React.CSSProperties = {
+    float: "right",
+    marginRight: "10px",
+    padding: "8px 20px",
+    margin: "15px 6px",
+    border: "none",
+    borderRadius: "5px",
+    backgroundColor: "#348ceb",
+    color: "white",
+    fontSize: "16px",
+    cursor: "pointer",
+    textDecoration: "none",
+    display: "inline-block"
+  };
+
   return (
     <div style={{ height: "100dvh", display: "flex", flexDirection: "column" }}>
       <div style={{ padding: "10px", flexShrink: 0, position: "relative" }}>
-        <button style={{ float: "right", marginRight: "10px" }}>My Profile</button>
+        <NavLink
+          style={navLinkStyle}
+          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "#1c5fcc"}
+          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "#348ceb"}
+          to="/profile"
+        >
+          My Profile
+        </NavLink>
         <input
           placeholder="Search location"
-          style= {{ padding: "8px", marginRight: "10px" }}
+          style={{ padding: "8px", marginRight: "10px" }}
         />
 
         <button onClick={() => setShowFilters(!showFilters)}>Filters</button>
@@ -188,13 +212,13 @@ const MapRoutingPage = () => {
 
             <div style={{ marginBottom: "20px" }}>
               <label style={{ fontWeight: "bold" }}>Max Distance (km): {maxDistance}</label>
-              <input 
+              <input
                 type="range"
                 min="1"
                 max="20"
                 value={maxDistance}
-                style={{ width: "80%" }} 
-                onChange={(e) => setMaxDistance(Number(e.target.value))}/>
+                style={{ width: "80%" }}
+                onChange={(e) => setMaxDistance(Number(e.target.value))} />
             </div>
 
             <div style={{ marginBottom: "10px" }}>
@@ -248,7 +272,10 @@ const MapRoutingPage = () => {
             <div>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "10px" }}>
                 <h3 style={{ margin: 0 }}>{targetPoint.shorthand_name}</h3>
-                <button onClick={() => setShowMarkerInfo(false)}>✕</button>
+                <button onClick={() => {
+                  setShowMarkerInfo(false);
+                  setTargetPoint(null);
+                }}>✕</button>
               </div>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "10px" }}>
                 <div>
@@ -259,40 +286,40 @@ const MapRoutingPage = () => {
                   <p><strong>User Reports:</strong> (Reports)</p>
                 </div>
                 {targetPointBays && (
-                <table>
-                  <thead>
-                    <tr>
-                      <td><strong>Bay</strong></td>
-                      <td><strong>Charger Type</strong></td>
-                      <td><strong>Availability</strong></td>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {targetPointBays.bays.map((bay : any) => (
-                      <tr key={bay.charging_bay_id}>
-                        <td>Bay {bay.charging_bay_number}</td>
-                        <td>{bay.bay_type_name}</td>
-                        <td>{bay.status}</td>
-                        <td>
-                          {bay.status === "available" ?
-                            <button style={{
-                              backgroundColor: "limegreen"
-                            }}>Book</button> :
-                            <button style={{
-                              backgroundColor: "red"
-                            }}
-                            disabled={true}>Busy</button>
-                          }
-                        </td>
+                  <table>
+                    <thead>
+                      <tr>
+                        <td><strong>Bay</strong></td>
+                        <td><strong>Charger Type</strong></td>
+                        <td><strong>Availability</strong></td>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody>
+                      {targetPointBays.bays.map((bay: any) => (
+                        <tr key={bay.charging_bay_id}>
+                          <td>Bay {bay.charging_bay_number}</td>
+                          <td>{bay.bay_type_name}</td>
+                          <td>{bay.status}</td>
+                          <td>
+                            {bay.status === "available" ?
+                              <button style={{
+                                backgroundColor: "limegreen"
+                              }}>Book</button> :
+                              <button style={{
+                                backgroundColor: "red"
+                              }}
+                                disabled={true}>Busy</button>
+                            }
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
                 )}
               </div>
-              
+
             </div>
-            
+
           </div>
         )}
 
@@ -302,27 +329,27 @@ const MapRoutingPage = () => {
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           />
           {location && <Marker position={location.position} icon={iconA} />}
-          {targetPoint && <Marker position={new LatLng(targetPoint.latitude, targetPoint.longitude)} icon={iconB} eventHandlers={{click: () => setShowMarkerInfo(true)}} />}
+          {targetPoint && <Marker position={new LatLng(targetPoint.latitude, targetPoint.longitude)} icon={iconB} eventHandlers={{ click: () => setShowMarkerInfo(true) }} />}
           {
-            chargingPoints && chargingPoints.length > 0 && chargingPoints.filter((point : any) => !targetPoint || point.charging_point_id !== targetPoint.charging_point_id).map((point: any) => (
-                  <Marker
-                    key={point.charging_point_id}
-                    position={new LatLng(point.latitude, point.longitude)}
-                    icon={iconOption}
-                    eventHandlers = {
-                      {
-                        click: () => {
-                          setTargetPoint(point);
-                          setShowMarkerInfo(true);
-                        }
-                      }
+            chargingPoints && chargingPoints.length > 0 && chargingPoints.filter((point: any) => !targetPoint || point.charging_point_id !== targetPoint.charging_point_id).map((point: any) => (
+              <Marker
+                key={point.charging_point_id}
+                position={new LatLng(point.latitude, point.longitude)}
+                icon={iconOption}
+                eventHandlers={
+                  {
+                    click: () => {
+                      setTargetPoint(point);
+                      setShowMarkerInfo(true);
                     }
-                  />
-                ))
+                  }
+                }
+              />
+            ))
           }
           {routeData && (
             <>
-              <GeoJSON data={routeData} ref={(layer) => {geoJSONReference.current = layer}} style={{ color: "#3f00f6", weight: 7 }} />
+              <GeoJSON data={routeData} ref={(layer) => { geoJSONReference.current = layer; }} style={{ color: "#3f00f6", weight: 7 }} />
               <FitBounds data={routeData} />
             </>
           )}
