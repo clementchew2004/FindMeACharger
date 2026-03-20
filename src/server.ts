@@ -8,6 +8,7 @@ import { auth } from "./lib/auth";
 import { authMiddleware } from "./middleware/auth";
 import chargingPointsRoutes from "./routes/chargingPointsRoutes";
 import mapRoutes from "./routes/mapRoutes";
+import userRoutes from "./routes/userRoutes";
 
 const app = express();
 const port = 8000;
@@ -23,9 +24,13 @@ app.all('/api/auth/{*any}', toNodeHandler(auth));
 
 app.use(express.json());
 
-app.use("/api", authMiddleware); // require login for all routes under /api
+// require login for all routes under /api
+// currently this is conditionally bypassed for development, see ./middleware/auth.ts for details
+app.use("/api", authMiddleware); 
+
 app.use("/api", chargingPointsRoutes);
 app.use("/api", mapRoutes);
+app.use("/api", userRoutes);
 
 app.listen(port, () => {
   console.log(`API listening on port ${port}`);
