@@ -25,7 +25,7 @@ export const authMiddleware = async (req: Request, res: Response, next: NextFunc
         id: "test-user-123",
         email: "test@example.com",
         name: "Test User",
-        emailVerified: true,
+        emailVerified: false,
         createdAt: new Date(),
         updatedAt: new Date(),
       };

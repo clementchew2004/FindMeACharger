@@ -1,9 +1,8 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
 import './App.css';
-import EmailVerificationPage from "./pages/EmailVerificationPage";
 import LoginPage from "./pages/LoginPage";
-import SignupPage from "./pages/SignupPage";
 import MapRoutingPage from "./pages/MapRoutingPage";
+import SignupPage from "./pages/SignupPage";
 
 function App() {
   return (
@@ -12,7 +11,6 @@ function App() {
         <Route path="/" element={<LoginPage />}></Route>
         <Route path="/signup" element={<SignupPage />} />
         <Route path="/routing" element={<MapRoutingPage />} />
-        <Route path="/verify-email" element={<EmailVerificationPage />} />
       </Routes>
     </BrowserRouter>
   );

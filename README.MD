@@ -8,7 +8,7 @@
 4. Copy [.env.example](.env.example) to [.env](.env) and edit env variables. Follow instructions in the file to create API keys or secrets
 
 #### Auth
-- Set `RESEND_API_KEY`, `EMAIL_FROM`, and `BETTER_AUTH_SECRET` in [.env](.env)
+- Set `BETTER_AUTH_SECRET` in [.env](.env)
 
 #### Routing
 - Set `ORS_API_KEY`

@@ -5,7 +5,6 @@ import { authClient } from "../lib/auth-client";
 const ERROR_MESSAGES: Record<string, string> = {
   INVALID_CREDENTIALS: "Incorrect email or password.",
   INVALID_EMAIL_OR_PASSWORD: "Incorrect email or password.",
-  EMAIL_NOT_VERIFIED: "Please verify your email address first.",
   TOO_MANY_REQUESTS: "Too many attempts. Please try again later.",
 };
 
