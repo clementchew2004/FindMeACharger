@@ -2,7 +2,6 @@ import L, { LatLng } from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { useEffect, useState, useRef } from "react";
 import { GeoJSON, MapContainer, Marker, TileLayer, useMap } from "react-leaflet";
-import { Button } from "@/components/ui/button";
 
 const API_BASE: string = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
 const uob = new LatLng(52.449832, -1.930633);
