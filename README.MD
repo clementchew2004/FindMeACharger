@@ -1,28 +1,46 @@
-# FindMeACharger
+# FindMeACharger - ObjectOrientedOracles Group Project
 
 ## Setup
-1. Make sure Node.js is installed
-2. Install packages: `npm i`
-3. Copy [.env.example](.env.example) to [.env](.env) and edit env variables
+### Express backend
+1. Make sure Node.js and Postgres are installed
+2. In root directory, install packages: `npm i`
+3. Create a new Postgres database
+4. Copy [.env.example](.env.example) to [.env](.env) and edit env variables. Follow instructions in the file to create API keys or secrets
 
-### Run Express API
-- For development: `npm run dev`
-- Build for production: `npm run build`
-- Run production build: `npm run start`
+#### Auth
+- Set `BETTER_AUTH_SECRET` in [.env](.env)
 
-### Auth
-- Set `RESEND_API_KEY` and `BETTER_AUTH_SECRET` in [.env](.env)
+#### Routing
+- Set `ORS_API_KEY`
 
-### Database
-- Set `DB_PASSWORD` in `.env`
-- Create schema: `npm run db:init`
-- Apply modifications: `npm run db:modify`
-- Populate sample data: `npm run db:populate`
+#### Database
+1. Set `DB_PASSWORD`
+2. Create schema: `npm run db:init`
+3. Apply modifications: `npm run db:modify`
+4. Populate with sample data: `npm run db:populate`
 
-### React frontend (Vite + TypeScript)
+### React (Vite) frontend
 1. `cd client`
 2. `npm i`
-3. `npm run dev`
+3. Copy [.env.example](client/.env.example) to [.env](client/.env)
 
-## Notes
-- could use @react-email/components for emails
+## Running 
+### Backend
+1. `npm run dev`
+
+### Frontend
+1. In a new terminal, `cd client`
+2. `npm run dev`
+
+### Running a production build locally
+Environment
+1. In backend [.env](.env), change `NODE_ENV` to `production`
+1. Also in backend [.env](.env), change `CLIENT_ORIGIN` to `http://localhost:4173`
+
+Backend:
+1. `npm run build`
+2. `npm run start`
+
+Frontend:
+1. `npm run build`
+2. `npm run preview`

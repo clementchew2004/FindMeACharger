@@ -1,4 +1,7 @@
+import dotenv from "dotenv";
 import { Request, Response } from "express";
+
+dotenv.config();
 
 const ORS_API_KEY = process.env.ORS_API_KEY;
 
