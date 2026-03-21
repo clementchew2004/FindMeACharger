@@ -313,3 +313,149 @@ export const deleteChargingPoint = async (req: Request, res: Response) => {
         res.status(500).json({error: "Failed to delete charging point"});
     }
 }
+
+export const getChargingBaysByChargingPoint = async(req:Request, res: Response) => {
+    console.log("BAYS Route HIT");
+    const {id} = req.params;
+
+    try{ 
+        const result = await pool.query(
+            `
+            SELECT 
+                cb.charging_bay_id,
+                cb.charging_point_id,
+                cb.charging_bay_number,
+                cb.bay_type,
+                bt.bay_type_name,
+                cb.is_operational,
+                cb.wheelchair_accessible,
+                cb.blocked_socket,
+                cb.accessibility_notes
+            FROM charging_bays cb
+            JOIN bay_types bt
+                ON cb.bay_type = bt.bay_type_id
+            WHERE cb.charging_point_id = $1
+            ORDER BY cb.charging_bay_number;
+            `,
+            [id]
+        );
+
+        if (result.rows.length === 0) {
+            return res.status(400).json({error: "No charging bays found for this charging point"})
+        }
+
+        res.json({
+            chargingPointId: id,
+            bays: result.rows
+        });
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({error: "Failed to fetch charging bays"});
+    }
+};
+
+export const createChargingBay = async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const {
+        charging_bay_number,
+        bay_type,
+        is_operational,
+        wheelchair_accessible,
+        blocked_socket,
+        accessibility_notes
+    } = req.body;
+
+    if (!charging_bay_number || !bay_type) {
+        return res.status(400).json({
+            error: "charging_bay_number and bay type are required"
+        });
+    }
+
+    try {
+        const result = await pool.query(
+             `
+            INSERT INTO charging_bays (
+                charging_point_id,
+                charging_bay_number,
+                bay_type,
+                is_operational,
+                wheelchair_accessible,
+                blocked_socket,
+                accessibility_notes
+            )
+            VALUES ($1, $2, $3, $4, $5, $6, $7)
+            RETURNING *;
+            `,
+            [
+                id,
+                charging_bay_number,
+                bay_type,
+                is_operational ?? true, 
+                wheelchair_accessible ?? false,
+                blocked_socket ?? false,
+                accessibility_notes || null
+            ]
+        );
+
+        res.status(201).json({
+            message: "Charging bay created successfully",
+            chargingBay: result.rows[0]
+        });
+
+    } catch (error: any) {
+        console.error(error)
+        res.status(500).json({error: "Failed to create charging bay"})
+
+    }
+}
+
+export const updateChargingBay = async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const {
+        charging_bay_number,
+        bay_type,
+        is_operational,
+        wheelchair_accessible,
+        blocked_socket,
+        accessibility_notes
+    } = req.body;
+
+    try {
+        const result = await pool.query(
+            `
+            UPDATE charging_bays
+            SET
+                charging_bay_number = COALESCE($1, charging_bay_number),
+                bay_type = COALESCE($2, bay_type),
+                is_operational = COALESCE($3, is_operational),
+                wheelchair_accessible = COALESCE($4, wheelchair_accessible),
+                blocked_socket = COALESCE($5, blocked_socket),
+                accessibility_notes = COALESCE($6, accessibility_notes)
+            WHERE charging_bay_id = $7
+            RETURNING *;
+            `,
+            [
+                charging_bay_number,
+                bay_type,
+                is_operational,
+                wheelchair_accessible,
+                blocked_socket,
+                accessibility_notes,
+                id
+            ]
+        );
+
+        if (result.rows.length === 0) {
+            return res.status(404).json({ error: "Charging bay not found" });
+        }
+
+        res.json({
+            message: "Charging bay updated successfully",
+            chargingBay: result.rows[0]
+        });
+    } catch (error) {
+        console.error("Update charging bay error:", error);
+        res.status(500).json({ error: "Failed to update charging bay" });
+    }
+};
