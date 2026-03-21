@@ -8,6 +8,7 @@ import { auth } from "./lib/auth";
 import { authMiddleware } from "./middleware/auth";
 import chargingPointsRoutes from "./routes/chargingPointsRoutes";
 import mapRoutes from "./routes/mapRoutes";
+import reportRoutes from "./routes/reportsRoutes";
 import userRoutes from "./routes/userRoutes";
 
 const app = express();
@@ -30,6 +31,7 @@ app.use("/api", authMiddleware);
 
 app.use("/api", chargingPointsRoutes);
 app.use("/api", mapRoutes);
+app.use("/api", reportRoutes)
 app.use("/api", userRoutes);
 
 app.listen(port, () => {
