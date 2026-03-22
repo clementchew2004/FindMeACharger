@@ -217,6 +217,15 @@ const MapRoutingPage = () => {
 
         <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "10px" }}>
           <button style={{ margin: 0 }} onClick={() => setShowFilters(!showFilters)}>Filters</button>
+          
+          <NavLink
+            to="/report"
+            style={{ ...navLinkStyle, margin: 0, float: "none" }}
+            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "#1c5fcc"}
+            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "#348ceb"}
+          >
+            Report a problem
+          </NavLink>
 
           <div style={{ marginLeft: "auto", display: "flex", gap: "10px", flexWrap: "wrap", alignItems: "center" }}>
             <div className="mode-container" style={{ margin: 0, marginLeft: "auto" }}>
