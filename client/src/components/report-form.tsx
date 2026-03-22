@@ -20,7 +20,6 @@ type ReportFormProps = React.ComponentProps<"div">;
 
 const ISSUE_TYPES = [
   "Broken / Not Working",
-  "Unavailable / Always Busy",
   "Blocked / Inaccessible",
   "Payment Issue",
   "Safety Concern",
@@ -116,17 +115,19 @@ export function ReportForm({ className, ...props }: ReportFormProps) {
               </Field>
               <Field>
                 <FieldLabel htmlFor="description">Description</FieldLabel>
-                <textarea
-                  id="description"
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  placeholder="Describe the issue in more detail..."
-                  disabled={isSubmitting}
-                  required
-                  rows={4}
-                  className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm resize-none"
-                />
-              </Field>
+                <div className="flex flex-col w-full">
+                    <textarea
+                        id="description"
+                        value={description}
+                        onChange={(e) => setDescription(e.target.value)}
+                        placeholder="Describe the issue"
+                        disabled={isSubmitting}
+                        required
+                        rows={4}
+                        className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm resize-none"
+                     />
+                </div>
+            </Field>
               <Field>
                 <Button type="submit" disabled={isSubmitting}>
                   {isSubmitting ? "Submitting..." : "Submit Report"}
