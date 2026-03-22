@@ -15,6 +15,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { useState, useEffect } from "react";
+import { NavLink } from "react-router-dom";
 
 const API_BASE: string = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
 
@@ -92,6 +93,22 @@ export function ReportForm({ className, ...props }: ReportFormProps) {
     }
   };
 
+  const navLinkStyle: React.CSSProperties = {
+    position: "absolute",
+    top: "10px",
+    right: "10px",
+    padding: "8px 20px",
+    border: "none",
+    borderRadius: "5px",
+    backgroundColor: "#348ceb",
+    color: "white",
+    fontSize: "16px",
+    cursor: "pointer",
+    textDecoration: "none",
+    display: "inline-block",
+    zIndex: 1000
+  };
+
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card>
@@ -100,6 +117,14 @@ export function ReportForm({ className, ...props }: ReportFormProps) {
           <CardDescription>
             Let us know about a problem with a charging point
           </CardDescription>
+          <NavLink
+            to="/routing"
+            style={{ ...navLinkStyle, margin: 0, float: "none" }}
+            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "#1c5fcc"}
+            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "#348ceb"}
+          >
+            Back to map
+          </NavLink>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit}>
