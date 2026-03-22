@@ -3,6 +3,7 @@ import "leaflet/dist/leaflet.css";
 import { useEffect, useRef, useState } from "react";
 import { GeoJSON, MapContainer, Marker, TileLayer, useMap } from "react-leaflet";
 import { NavLink } from "react-router-dom";
+import { CycleIcon, DriveIcon, WalkIcon, WheelchairIcon } from "../components/ModeIcons";
 
 const API_BASE: string = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
 const uob = new LatLng(52.449832, -1.930633);
@@ -70,6 +71,7 @@ const MapRoutingPage = () => {
   const [targetPoint, setTargetPoint] = useState<any>(null);
   const [targetPointBays, setTargetPointBays] = useState<any>(null);
   const geoJSONReference = useRef<any>(null);
+  const [mode, setMode] = useState<string>("foot-walking");
 
   useEffect(() => {
     if (navigator.geolocation) {
@@ -123,7 +125,7 @@ const MapRoutingPage = () => {
     const endStr = `${targetPoint.longitude},${targetPoint.latitude}`;
 
     try {
-      const response = await fetch(`${API_BASE}/api/get-route?start=${startStr}&end=${endStr}`);
+      const response = await fetch(`${API_BASE}/api/get-route?start=${startStr}&end=${endStr}&mode=${mode}`);
       if (response.ok) {
         const data = await response.json();
         setRouteData(data);
@@ -164,6 +166,23 @@ const MapRoutingPage = () => {
 
   return (
     <div style={{ height: "100dvh", display: "flex", flexDirection: "column" }}>
+      <style>{`
+        .mode-container {
+          display: inline-flex;
+          gap: 5px;
+          margin: 10px;
+          vertical-align: middle;
+          flex-wrap: wrap;
+        }
+        @media (max-width: 600px) {
+          .mode-label {
+            display: none !important;
+          }
+          .mode-container {
+            margin: 5px 0;
+          }
+        }
+      `}</style>
       <div style={{ padding: "10px", flexShrink: 0, position: "relative" }}>
         <NavLink
           style={navLinkStyle}
@@ -175,10 +194,41 @@ const MapRoutingPage = () => {
         </NavLink>
         <input
           placeholder="Search location"
-          style={{ padding: "8px", marginRight: "10px" }}
+          style={{ padding: "8px", marginRight: "10px", width: "100%", maxWidth: "300px", boxSizing: "border-box" }}
         />
 
         <button onClick={() => setShowFilters(!showFilters)}>Filters</button>
+
+        <div className="mode-container">
+          {[
+            { id: "foot-walking", label: "Walk", icon: <WalkIcon /> },
+            { id: "cycling-regular", label: "Cycle", icon: <CycleIcon /> },
+            { id: "driving-car", label: "Drive", icon: <DriveIcon /> },
+            { id: "wheelchair", label: "Wheelchair", icon: <WheelchairIcon /> }
+          ].map((m) => (
+            <button
+              key={m.id}
+              onClick={() => setMode(m.id)}
+              style={{
+                padding: "8px 12px",
+                backgroundColor: mode === m.id ? "#348ceb" : "#f3f4f6",
+                color: mode === m.id ? "white" : "black",
+                border: "1px solid #ccc",
+                borderRadius: "4px",
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                gap: "4px",
+                fontSize: "14px"
+              }}
+              title={m.label}
+              aria-pressed={mode === m.id}
+            >
+              {m.icon}
+              <span className="mode-label">{m.label}</span>
+            </button>
+          ))}
+        </div>
 
         <button onClick={getRoute} style={{ padding: "10px", fontSize: "16px" }}>Calculate route</button>
         {routeSummary && (
