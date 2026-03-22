@@ -70,6 +70,7 @@ const MapRoutingPage = () => {
   const [chargingPoints, setChargingPoints] = useState<any>([]);
   const [targetPoint, setTargetPoint] = useState<any>(null);
   const [targetPointBays, setTargetPointBays] = useState<any>(null);
+  const [updateCounter, setUpdateCounter] = useState<number>(0);
   const geoJSONReference = useRef<any>(null);
   const [mode, setMode] = useState<string>("foot-walking");
 
@@ -117,7 +118,7 @@ const MapRoutingPage = () => {
       })
       .then(data => setTargetPointBays(data))
       .catch(console.error);
-  }, [targetPoint]);
+  }, [targetPoint, updateCounter]);
 
   const getRoute = async () => {
     // ORS uses "longitude,latitude"
@@ -148,6 +149,21 @@ const MapRoutingPage = () => {
       console.error("Error fetching route:", error);
     }
   };
+
+  const makeBooking = (b_customer_id : number, bay_id : number) => {
+    const requestOptions = {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ customer_id : b_customer_id, charging_bay_id: bay_id, booking_length: 60 })
+    };
+
+    fetch(`${API_BASE}/api/booking`, requestOptions)
+      .then(response => response.json())
+      .then(_ => {
+        setUpdateCounter(updateCounter + 1);
+      })
+      .catch(console.error);
+  }
 
   const navLinkStyle: React.CSSProperties = {
     float: "right",
@@ -360,7 +376,11 @@ const MapRoutingPage = () => {
                           <td>{bay.status}</td>
                           <td>
                             {bay.status === "available" ?
-                              <button style={{
+                              <button 
+                              onClick = {() => {
+                                makeBooking(-1, bay.charging_bay_id);
+                              }}
+                              style={{
                                 backgroundColor: "limegreen"
                               }}>Book</button> :
                               <button style={{

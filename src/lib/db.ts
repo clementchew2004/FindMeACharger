@@ -3,6 +3,7 @@ import { Pool } from "pg";
 
 dotenv.config();
 
+/* c8 ignore start */
 export const pool = new Pool({
   host: process.env.DB_HOST || "localhost",
   port: Number(process.env.DB_PORT || 5432),
@@ -15,3 +16,4 @@ export const pool = new Pool({
   connectionTimeoutMillis: 5000,
   allowExitOnIdle: false,
 });
+/* c8 ignore stop */

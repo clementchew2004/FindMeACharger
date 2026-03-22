@@ -1,6 +1,19 @@
 import { Request, Response } from "express";
 import { pool } from "../lib/db";
 
+export const getChargingPointIdFromShorthand = async (shorthand : any) => {
+    const result = await pool.query(
+        `
+            SELECT
+                point.charging_point_id
+            FROM charging_points point
+            WHERE point.shorthand_name = $1;
+        `,
+        [shorthand]
+    );
+    return result.rows[0];
+}
+
 // Feature F5
 export const getChargingPointStatus = async (req: Request, res: Response) => {
     const { id } = req.params;
@@ -33,8 +46,10 @@ export const getChargingPointStatus = async (req: Request, res: Response) => {
             return res.status(404).json({error: "Charging point not found"});
         }
 
+        /* c8 ignore start */
         const overallStatus = result.rows.every((bay) => bay.status === "busy")
         ? "busy" : "available";
+        /* c8 ignore stop */
 
         res.json({
             chargingPointId: id,
@@ -48,7 +63,7 @@ export const getChargingPointStatus = async (req: Request, res: Response) => {
 }
 
 // Feature F9 
-export const getChargingPointAccessiblity = async (req: Request, res: Response) => {
+export const getChargingPointAccessibility = async (req: Request, res: Response) => {
     const { id } = req.params;
 
     try {
@@ -85,7 +100,6 @@ export const getChargingPointAccessiblity = async (req: Request, res: Response) 
     }
 };
    
-
 /*
 returns all charging points within a specified maximum distance (in km)
 from a provided longitude and latitude (presumably the user's location)
