@@ -1,5 +1,6 @@
 import i18n from "i18next";
 import { initReactI18next } from "react-i18next";
+import LanguageDetector from 'i18next-browser-languagedetector';
 
 const resources = {
   en: {
@@ -75,13 +76,88 @@ const resources = {
       "map.info.loading": "loading.."
     }
   },
+  fr: {
+    translation: {
+      "login.title": "Connexion",
+      "login.email": "E-mail",
+      "login.password": "Mot de passe",
+      "login.rememberMe": "Se souvenir de moi",
+      "login.button": "Se connecter",
+      "login.loggingIn": "Connexion en cours...",
+      "login.continueWithoutLogin": "Continuer sans se connecter (pour le développement)",
+      "login.noAccount": "Vous n'avez pas de compte ?",
+      "login.signUp": "S'inscrire",
+      "login.error.invalidCredentials": "E-mail ou mot de passe incorrect.",
+      "login.error.tooManyRequests": "Trop de tentatives. Veuillez réessayer plus tard.",
+      "login.error.generic": "Une erreur s'est produite. Veuillez réessayer.",
+      "signup.title": "Inscription",
+      "signup.username": "Nom d'utilisateur",
+      "signup.displayName": "Nom affiché (facultatif)",
+      "signup.email": "E-mail",
+      "signup.password": "Mot de passe (min. 12 caractères)",
+      "signup.confirmPassword": "Confirmer le mot de passe",
+      "signup.button": "S'inscrire",
+      "signup.creatingAccount": "Création du compte...",
+      "signup.backToLogin": "Retour à la connexion",
+      "signup.error.passwordsMatch": "Les mots de passe ne correspondent pas.",
+      "signup.error.userExists": "Un compte avec cet e-mail existe déjà.",
+      "signup.error.invalidEmail": "Veuillez saisir une adresse e-mail valide.",
+      "signup.error.weakPassword": "Le mot de passe doit contenir au moins 12 caractères.",
+      "signup.success": "Compte créé !",
+      "profile.title": "Mon profil",
+      "profile.loading": "Chargement du profil...",
+      "profile.loadError": "Impossible de charger le profil. Veuillez vous reconnecter",
+      "profile.fetchError": "Échec du chargement des détails du profil",
+      "profile.updateError": "Échec de la mise à jour du profil",
+      "profile.goToLogin": "Aller à la connexion",
+      "profile.email": "E-mail",
+      "profile.emailUnchangeable": "Votre adresse e-mail ne peut pas être modifiée",
+      "profile.username": "Nom d'utilisateur",
+      "profile.displayName": "Nom affiché",
+      "profile.optional": "Facultatif",
+      "profile.saveChanges": "Enregistrer les modifications",
+      "profile.saving": "Enregistrement...",
+      "profile.backToMap": "Retour à la carte",
+      "profile.logout": "Se déconnecter",
+      "profile.updateSuccess": "Profil mis à jour avec succès !",
+      "map.searchPlaceholder": "Rechercher un lieu",
+      "map.myProfile": "Mon profil",
+      "map.filters": "Filtres",
+      "map.calculateRoute": "Calculer l’itinéraire",
+      "map.distance": "Distance",
+      "map.duration": "Durée",
+      "map.applyFilters": "Appliquer les filtres",
+      "map.maxDistance": "Distance maximale (km)",
+      "map.cost": "Coût",
+      "map.free": "Gratuit",
+      "map.paid": "Payant",
+      "map.availableOnly": "Disponibles uniquement",
+      "map.accessibility": "Accessibilité",
+      "map.wheelchairAccess": "Accès fauteuil roulant",
+      "map.noBlockedSockets": "Aucune prise bloquée",
+      "map.mode.walk": "À pied",
+      "map.mode.cycle": "Vélo",
+      "map.mode.drive": "Voiture",
+      "map.mode.wheelchair": "Fauteuil roulant",
+      "map.info.availability": "Disponibilité",
+      "map.info.cost": "Coût",
+      "map.info.userReports": "Signalements des utilisateurs",
+      "map.info.bay": "Emplacement",
+      "map.info.chargerType": "Type de chargeur",
+      "map.info.book": "Réserver",
+      "map.info.busy": "Occupé",
+      "map.info.loading": "chargement..."
+    }
+  }
 };
 
 i18n
+  .use(LanguageDetector)
   .use(initReactI18next)
   .init({
     resources,
-    lng: "en",
+    fallbackLng: "en",
+    debug: true,
     interpolation: {
       escapeValue: false
     }
