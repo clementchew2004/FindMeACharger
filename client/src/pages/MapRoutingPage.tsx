@@ -183,66 +183,74 @@ const MapRoutingPage = () => {
           }
         }
       `}</style>
-      <div style={{ padding: "10px", flexShrink: 0, position: "relative" }}>
-        <NavLink
-          style={navLinkStyle}
-          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "#1c5fcc"}
-          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "#348ceb"}
-          to="/profile"
-        >
-          My Profile
-        </NavLink>
-        <input
-          placeholder="Search location"
-          style={{ padding: "8px", marginRight: "10px", width: "100%", maxWidth: "300px", boxSizing: "border-box" }}
-        />
-
-        <button onClick={() => setShowFilters(!showFilters)}>Filters</button>
-
-        <div className="mode-container">
-          {[
-            { id: "foot-walking", label: "Walk", icon: <WalkIcon /> },
-            { id: "cycling-regular", label: "Cycle", icon: <CycleIcon /> },
-            { id: "driving-car", label: "Drive", icon: <DriveIcon /> },
-            { id: "wheelchair", label: "Wheelchair", icon: <WheelchairIcon /> }
-          ].map((m) => (
-            <button
-              key={m.id}
-              onClick={() => setMode(m.id)}
-              style={{
-                padding: "8px 12px",
-                backgroundColor: mode === m.id ? "#348ceb" : "#f3f4f6",
-                color: mode === m.id ? "white" : "black",
-                border: "1px solid #ccc",
-                borderRadius: "4px",
-                cursor: "pointer",
-                display: "flex",
-                alignItems: "center",
-                gap: "4px",
-                fontSize: "14px"
-              }}
-              title={m.label}
-              aria-pressed={mode === m.id}
-            >
-              {m.icon}
-              <span className="mode-label">{m.label}</span>
-            </button>
-          ))}
+      <div style={{ padding: "10px", flexShrink: 0, position: "relative", display: "flex", flexDirection: "column", gap: "10px" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "10px" }}>
+          <input
+            placeholder="Search location"
+            style={{ padding: "8px", width: "100%", maxWidth: "300px", boxSizing: "border-box", margin: 0 }}
+          />
+          <NavLink
+            style={{ ...navLinkStyle, margin: 0, float: "none" }}
+            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "#1c5fcc"}
+            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "#348ceb"}
+            to="/profile"
+          >
+            My Profile
+          </NavLink>
         </div>
 
-        <button onClick={getRoute} style={{ padding: "10px", fontSize: "16px" }}>Calculate route</button>
+        <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "10px" }}>
+          <button style={{ margin: 0 }} onClick={() => setShowFilters(!showFilters)}>Filters</button>
+
+          <div style={{ marginLeft: "auto", display: "flex", gap: "10px", flexWrap: "wrap", alignItems: "center" }}>
+            <div className="mode-container" style={{ margin: 0, marginLeft: "auto" }}>
+              {[
+                { id: "foot-walking", label: "Walk", icon: <WalkIcon /> },
+                { id: "cycling-regular", label: "Cycle", icon: <CycleIcon /> },
+                { id: "driving-car", label: "Drive", icon: <DriveIcon /> },
+                { id: "wheelchair", label: "Wheelchair", icon: <WheelchairIcon /> }
+              ].map((m) => (
+                <button
+                  key={m.id}
+                  onClick={() => setMode(m.id)}
+                  style={{
+                    margin: 0,
+                    padding: "8px 12px",
+                    backgroundColor: mode === m.id ? "#348ceb" : "#f3f4f6",
+                    color: mode === m.id ? "white" : "black",
+                    border: "1px solid #ccc",
+                    borderRadius: "4px",
+                    cursor: "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "4px",
+                    fontSize: "14px"
+                  }}
+                  title={m.label}
+                  aria-pressed={mode === m.id}
+                >
+                  {m.icon}
+                  <span className="mode-label">{m.label}</span>
+                </button>
+              ))}
+            </div>
+
+            <button onClick={getRoute} style={{ margin: 0, padding: "8px 12px", fontSize: "14px" }}>Calculate route</button>
+          </div>
+        </div>
+
         {routeSummary && (
-          <div style={{ marginTop: "10px", fontSize: "16px" }}>
-            <p>Distance: {routeSummary.distance} km</p>
-            <p>Duration: {routeSummary.duration} minutes</p>
+          <div style={{ fontSize: "14px", display: "flex", gap: "15px", flexWrap: "wrap", justifyContent: "flex-end" }}>
+            <p style={{ margin: 0 }}><strong>Distance:</strong> {routeSummary.distance} km</p>
+            <p style={{ margin: 0 }}><strong>Duration:</strong> {routeSummary.duration} mins</p>
           </div>
         )}
 
         {showFilters && (
           <div style={{
             position: "absolute",
-            top: "88px",
-            left: "100px",
+            top: "100%",
+            left: "10px",
             height: "auto",
             maxHeight: "80vh",
             background: "white",
