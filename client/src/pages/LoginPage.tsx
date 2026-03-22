@@ -65,11 +65,28 @@ export default function LoginPage() {
           <p style={{ color: "red", textAlign: "center" }}>{errorMessage}</p>
         )}
 
-        <div style={{ display: "flex", width: '100%' }}>
-          <button type="button" onClick={() => navigate("/routing")} disabled={loading} style={{ width: '100%' }}>
-            Continue without login (for development)
+        <div style={{ width: "300px", marginTop: "10px" }}>
+          <button
+            type="button"
+            onClick={() => navigate("/routing")}
+            disabled={loading}
+            style={{ width: "100%" }}
+          >
+            Go to map page without login (for development)
           </button>
         </div>
+
+        <div style={{ width: "300px", marginTop: "10px" }}>
+          <button
+            type="button"
+            onClick={() => navigate("/manage-points")}
+            disabled={loading}
+            style={{ width: "100%" }}
+          >
+            Go to operator manage points page without login (for development)
+          </button>
+        </div>
+
       </form>
 
       <p>
