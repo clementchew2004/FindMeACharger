@@ -8,6 +8,7 @@ import { auth } from "./lib/auth";
 import { authMiddleware } from "./middleware/auth";
 import chargingPointsRoutes from "./routes/chargingPointsRoutes";
 import mapRoutes from "./routes/mapRoutes";
+import reportingRoutes from "./routes/reportingRoutes";
 import reportRoutes from "./routes/reportsRoutes";
 import userRoutes from "./routes/userRoutes";
 import bookingRoutes from "./routes/bookingRoutes";
@@ -32,6 +33,7 @@ app.use("/api", authMiddleware);
 
 app.use("/api", chargingPointsRoutes);
 app.use("/api", mapRoutes);
+app.use("/api", reportingRoutes);
 app.use("/api", reportRoutes)
 app.use("/api", userRoutes);
 app.use("/api", bookingRoutes);
