@@ -33,7 +33,7 @@ export const makeBooking = async (req: Request, res: Response) => {
                 FROM bookings booking
                 WHERE 
                     booking.charging_bay_id = $1
-                    AND ((NOW() BETWEEN b.start_time AND b.end_time) OR ((NOW() + INTERVAL '$2 minutes') BETWEEN b.start_time AND b.end_time));
+                    AND ((NOW() BETWEEN booking.start_time AND booking.end_time) OR ((NOW() + INTERVAL '$2 minutes') BETWEEN booking.start_time AND booking.end_time));
             `,
             [charging_bay_id, booking_length]
         )
