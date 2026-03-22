@@ -9,7 +9,6 @@ import { authMiddleware } from "./middleware/auth";
 import chargingPointsRoutes from "./routes/chargingPointsRoutes";
 import mapRoutes from "./routes/mapRoutes";
 import reportRoutes from "./routes/reportsRoutes";
-import userRoutes from "./routes/userRoutes";
 import bookingRoutes from "./routes/bookingRoutes";
 
 const app = express();
@@ -33,7 +32,6 @@ app.use("/api", authMiddleware);
 app.use("/api", chargingPointsRoutes);
 app.use("/api", mapRoutes);
 app.use("/api", reportRoutes)
-app.use("/api", userRoutes);
 app.use("/api", bookingRoutes);
 
 app.listen(port, () => {
