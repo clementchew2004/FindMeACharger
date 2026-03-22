@@ -14,7 +14,9 @@ import {
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+
+const API_BASE: string = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
 
 type ReportFormProps = React.ComponentProps<"div">;
 
@@ -28,6 +30,7 @@ const ISSUE_TYPES = [
 
 export function ReportForm({ className, ...props }: ReportFormProps) {
   const [chargingPointId, setChargingPointId] = useState("");
+  const [issueTypes, setIssueTypes] = useState([]);
   const [issueType, setIssueType] = useState("");
   const [description, setDescription] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -36,13 +39,25 @@ export function ReportForm({ className, ...props }: ReportFormProps) {
     message: string;
   }>({ type: "idle", message: "" });
 
+  useEffect(() => {
+    fetch(`${API_BASE}/api/report-types`)
+    .then((res) => {
+      if (!res.ok) throw new Error(`HTTP error status ${res.status}`);
+      return res.json();
+    })
+    .then((data) => {
+      setIssueTypes(data.reportTypes);
+    })
+    .catch((_) => {});
+  }, []);
+
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setIsSubmitting(true);
     setStatus({ type: "idle", message: "" });
 
     try {
-      const response = await fetch("/api/reports", {
+      const response = await fetch(`${API_BASE}/api/reports`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -106,7 +121,7 @@ export function ReportForm({ className, ...props }: ReportFormProps) {
                   className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
                 >
                   <option value="">Select an issue type</option>
-                  {ISSUE_TYPES.map((type) => (
+                  {issueTypes.map((type) => (
                     <option key={type} value={type}>
                       {type}
                     </option>
