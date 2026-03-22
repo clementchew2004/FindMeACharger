@@ -16,20 +16,29 @@ import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { useState, useEffect } from "react";
 import { NavLink } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 const API_BASE: string = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
 
 type ReportFormProps = React.ComponentProps<"div">;
 
-const ISSUE_TYPES = [
-  "Broken / Not Working",
-  "Blocked / Inaccessible",
-  "Payment Issue",
-  "Safety Concern",
-  "Other",
-];
-
 export function ReportForm({ className, ...props }: ReportFormProps) {
+  const { t } = useTranslation();
+  const ISSUE_TYPES = [
+    t("report.issue.broken"),
+    t("report.issue.blocked"),
+    t("report.issue.payment"),
+    t("report.issue.safety"),
+    t("report.issue.other"),
+  ];
+
+  const ISSUE_TYPES_EN = [
+    "Broken / Not Working",
+    "Blocked / Inaccessible",
+    "Payment Issue",
+    "Safety Concern",
+    "Other",
+  ];
   const [chargingPointId, setChargingPointId] = useState("");
   const [issueTypes, setIssueTypes] = useState<string[]>([]);
   const [issueType, setIssueType] = useState("");
@@ -42,20 +51,20 @@ export function ReportForm({ className, ...props }: ReportFormProps) {
 
   useEffect(() => {
     fetch(`${API_BASE}/api/report-types`)
-    .then((res) => {
-      if (!res.ok) throw new Error(`HTTP error status ${res.status}`);
-      return res.json();
-    })
-    .then((data) => {
-      if (Array.isArray(data)) {
-        setIssueTypes(data);
-      } else if (Array.isArray(data.reportTypes)) {
-        setIssueTypes(data.reportTypes);
-      } else {
-        setIssueTypes([]);
-      }
-    })
-    .catch((_) => {});
+      .then((res) => {
+        if (!res.ok) throw new Error(`HTTP error status ${res.status}`);
+        return res.json();
+      })
+      .then((data) => {
+        if (Array.isArray(data)) {
+          setIssueTypes(data);
+        } else if (Array.isArray(data.reportTypes)) {
+          setIssueTypes(data.reportTypes);
+        } else {
+          setIssueTypes([]);
+        }
+      })
+      .catch((_) => { });
   }, []);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -78,7 +87,7 @@ export function ReportForm({ className, ...props }: ReportFormProps) {
 
       setStatus({
         type: "success",
-        message: "Your report has been submitted. Thank you!",
+        message: t("report.success"),
       });
       setChargingPointId("");
       setIssueType("");
@@ -86,7 +95,7 @@ export function ReportForm({ className, ...props }: ReportFormProps) {
     } catch {
       setStatus({
         type: "error",
-        message: "Something went wrong. Please try again.",
+        message: t("report.error"),
       });
     } finally {
       setIsSubmitting(false);
@@ -113,9 +122,9 @@ export function ReportForm({ className, ...props }: ReportFormProps) {
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card>
         <CardHeader>
-          <CardTitle>Report an Issue</CardTitle>
+          <CardTitle>{t("report.title")}</CardTitle>
           <CardDescription>
-            Let us know about a problem with a charging point
+            {t("report.description")}
           </CardDescription>
           <NavLink
             to="/routing"
@@ -123,26 +132,26 @@ export function ReportForm({ className, ...props }: ReportFormProps) {
             onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "#1c5fcc"}
             onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "#348ceb"}
           >
-            Back to map
+            {t("report.backToMap")}
           </NavLink>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit}>
             <FieldGroup>
               <Field>
-                <FieldLabel htmlFor="chargingPointId">Charging Point</FieldLabel>
+                <FieldLabel htmlFor="chargingPointId">{t("report.chargingPoint")}</FieldLabel>
                 <Input
                   id="chargingPointId"
                   type="text"
                   value={chargingPointId}
                   onChange={(e) => setChargingPointId(e.target.value)}
-                  placeholder="e.g. CP-001"
+                  placeholder={t("report.chargingPointPlaceholder")}
                   disabled={isSubmitting}
                   required
                 />
               </Field>
               <Field>
-                <FieldLabel htmlFor="issueType">Type of Issue</FieldLabel>
+                <FieldLabel htmlFor="issueType">{t("report.issueType")}</FieldLabel>
                 <select
                   id="issueType"
                   value={issueType}
@@ -151,32 +160,35 @@ export function ReportForm({ className, ...props }: ReportFormProps) {
                   required
                   className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
                 >
-                  <option value="">Select an issue type</option>
-                  {ISSUE_TYPES.map((type) => (
-                    <option key={type} value={type}>
-                      {type}
-                    </option>
-                  ))}
+                  <option value="">{t("report.issueTypeSelect")}</option>
+                  {(issueTypes.length !== ISSUE_TYPES.length ? issueTypes : ISSUE_TYPES).map((type, index) => {
+                    const value = issueTypes.length !== ISSUE_TYPES.length ? type : ISSUE_TYPES_EN[index];
+                    return (
+                      <option key={typeof type === 'string' ? type : index} value={value}>
+                        {type}
+                      </option>
+                    );
+                  })}
                 </select>
               </Field>
               <Field>
-                <FieldLabel htmlFor="description">Description</FieldLabel>
+                <FieldLabel htmlFor="description">{t("report.descLabel")}</FieldLabel>
                 <div className="flex flex-col w-full">
-                    <textarea
-                        id="description"
-                        value={description}
-                        onChange={(e) => setDescription(e.target.value)}
-                        placeholder="Describe the issue"
-                        disabled={isSubmitting}
-                        required
-                        rows={4}
-                        className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm resize-none"
-                     />
+                  <textarea
+                    id="description"
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    placeholder={t("report.descPlaceholder")}
+                    disabled={isSubmitting}
+                    required
+                    rows={4}
+                    className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm resize-none"
+                  />
                 </div>
-            </Field>
+              </Field>
               <Field>
                 <Button type="submit" disabled={isSubmitting}>
-                  {isSubmitting ? "Submitting..." : "Submit Report"}
+                  {isSubmitting ? t("report.submitting") : t("report.submit")}
                 </Button>
                 {status.type !== "idle" && (
                   <FieldDescription

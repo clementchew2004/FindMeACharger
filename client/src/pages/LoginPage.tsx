@@ -75,7 +75,7 @@ export default function LoginPage() {
             disabled={loading}
             style={{ width: "100%" }}
           >
-            Go to map page without login (for development)
+            {t("login.dev.map")}
           </button>
         </div>
 
@@ -86,7 +86,7 @@ export default function LoginPage() {
             disabled={loading}
             style={{ width: "100%" }}
           >
-            Go to operator manage points page without login (for development)
+            {t("login.dev.operator")}
           </button>
         </div>
 

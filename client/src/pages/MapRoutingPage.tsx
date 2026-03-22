@@ -208,7 +208,7 @@ const MapRoutingPage = () => {
             placeholder={t("map.searchPlaceholder")}
             style={{ padding: "8px", width: "100%", maxWidth: "300px", boxSizing: "border-box", margin: 0 }}
           />
-          <div style={{  display: "flex", gap: "10px", alignItems: "center" }}>
+          <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
             <LanguageSwitcher />
             <NavLink
               style={{ ...navLinkStyle, margin: 0, float: "none" }}
@@ -222,18 +222,20 @@ const MapRoutingPage = () => {
         </div>
 
         <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "10px", justifyContent: "space-between" }}>
-          <button style={{ margin: 0 }} onClick={() => setShowFilters(!showFilters)}>{t("map.filters")}</button>
-          
-          <NavLink
-            to="/report"
-            style={{ ...navLinkStyle, margin: 0, float: "none" }}
-            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "#1c5fcc"}
-            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "#348ceb"}
-          >
-            Report a problem
-          </NavLink>
+          <div style={{ display: "flex", gap: "10px", flexWrap: "wrap", alignItems: "center" }}>
+            <button style={{ margin: 0 }} onClick={() => setShowFilters(!showFilters)}>{t("map.filters")}</button>
 
-          <div style={{  display: "flex", gap: "10px", flexWrap: "wrap", alignItems: "center" }}>
+            <NavLink
+              to="/report"
+              style={{ ...navLinkStyle, margin: 0, float: "none" }}
+              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "#1c5fcc"}
+              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "#348ceb"}
+            >
+              {t("map.reportProblem")}
+            </NavLink>
+          </div>
+
+          <div style={{ display: "flex", gap: "10px", flexWrap: "wrap", alignItems: "center" }}>
             <div className="mode-container" style={{ margin: 0, marginLeft: "auto" }}>
               {[
                 { id: "foot-walking", label: t("map.mode.walk"), icon: <WalkIcon /> },

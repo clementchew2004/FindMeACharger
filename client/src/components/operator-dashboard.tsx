@@ -1,5 +1,6 @@
 import { cn } from "@/lib/utils";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 
 type ChargingPoint = {
   id: string;
@@ -19,6 +20,7 @@ const MOCK_CHARGING_POINTS: ChargingPoint[] = [
 ];
 
 export function OperatorDashboard({ className, ...props }: OperatorDashboardProps) {
+  const { t } = useTranslation();
   const [chargingPoints, setChargingPoints] = useState<ChargingPoint[]>(MOCK_CHARGING_POINTS);
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingPoint, setEditingPoint] = useState<ChargingPoint | null>(null);
@@ -39,7 +41,7 @@ export function OperatorDashboard({ className, ...props }: OperatorDashboardProp
       status: "active",
     };
     setChargingPoints([...chargingPoints, newPoint]);
-    setStatusMsg({ type: "success", message: "Charging point added successfully!" });
+    setStatusMsg({ type: "success", message: t("operator.addSuccess") });
     resetForm();
   };
 
@@ -47,7 +49,7 @@ export function OperatorDashboard({ className, ...props }: OperatorDashboardProp
     event.preventDefault();
     if (!editingPoint) return;
     setChargingPoints(chargingPoints.map((cp) => cp.id === editingPoint.id ? { ...editingPoint, ...form } : cp));
-    setStatusMsg({ type: "success", message: "Charging point updated!" });
+    setStatusMsg({ type: "success", message: t("operator.updateSuccess") });
     resetForm();
   };
 
@@ -57,7 +59,7 @@ export function OperatorDashboard({ className, ...props }: OperatorDashboardProp
 
   const handleDelete = (id: string) => {
     setChargingPoints(chargingPoints.filter((cp) => cp.id !== id));
-    setStatusMsg({ type: "success", message: "Charging point removed." });
+    setStatusMsg({ type: "success", message: t("operator.removeSuccess") });
   };
 
   const startEdit = (cp: ChargingPoint) => {
@@ -74,8 +76,8 @@ export function OperatorDashboard({ className, ...props }: OperatorDashboardProp
 
         {/* Header */}
         <div className="mb-6">
-          <h1 className="text-2xl font-bold text-gray-900">Operator Dashboard</h1>
-          <p className="text-sm text-gray-500 mt-1">Manage charging points — add, update or suspend them</p>
+          <h1 className="text-2xl font-bold text-gray-900">{t("operator.title")}</h1>
+          <p className="text-sm text-gray-500 mt-1">{t("operator.subtitle")}</p>
         </div>
 
         {/* Status Message */}
@@ -89,31 +91,31 @@ export function OperatorDashboard({ className, ...props }: OperatorDashboardProp
         {showAddForm && (
           <div className="bg-white rounded-xl border border-gray-200 p-5 mb-5 shadow-sm">
             <h2 className="text-base font-semibold text-gray-800 mb-4">
-              {editingPoint ? "Edit Charging Point" : "Add New Charging Point"}
+              {editingPoint ? t("operator.editTitle") : t("operator.addTitle")}
             </h2>
             <form onSubmit={editingPoint ? handleUpdate : handleAdd} className="flex flex-col gap-3">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
-                <input className={inputStyle} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="Enter charging point name" required />
+                <label className="block text-sm font-medium text-gray-700 mb-1">{t("operator.name")}</label>
+                <input className={inputStyle} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder={t("operator.namePlaceholder")} required />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Location</label>
-                <input className={inputStyle} value={form.location} onChange={(e) => setForm({ ...form, location: e.target.value })} placeholder="Enter address" required />
+                <label className="block text-sm font-medium text-gray-700 mb-1">{t("operator.location")}</label>
+                <input className={inputStyle} value={form.location} onChange={(e) => setForm({ ...form, location: e.target.value })} placeholder={t("operator.locationPlaceholder")} required />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Accessibility Info</label>
-                <input className={inputStyle} value={form.accessibility} onChange={(e) => setForm({ ...form, accessibility: e.target.value })} placeholder="e.g. Wheelchair accessible" required />
+                <label className="block text-sm font-medium text-gray-700 mb-1">{t("operator.accessibility")}</label>
+                <input className={inputStyle} value={form.accessibility} onChange={(e) => setForm({ ...form, accessibility: e.target.value })} placeholder={t("operator.accessibilityPlaceholder")} required />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Cost</label>
-                <input className={inputStyle} value={form.cost} onChange={(e) => setForm({ ...form, cost: e.target.value })} placeholder="e.g. £0.30/kWh" required />
+                <label className="block text-sm font-medium text-gray-700 mb-1">{t("operator.cost")}</label>
+                <input className={inputStyle} value={form.cost} onChange={(e) => setForm({ ...form, cost: e.target.value })} placeholder={t("operator.costPlaceholder")} required />
               </div>
               <div className="flex gap-2 pt-1">
                 <button type="submit" className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition">
-                  {editingPoint ? "Save Changes" : "Add Charging Point"}
+                  {editingPoint ? t("operator.saveChanges") : t("operator.addPoint")}
                 </button>
                 <button type="button" onClick={resetForm} className="px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-200 transition">
-                  Cancel
+                  {t("operator.cancel")}
                 </button>
               </div>
             </form>
@@ -123,7 +125,7 @@ export function OperatorDashboard({ className, ...props }: OperatorDashboardProp
         {/* Add Button */}
         {!showAddForm && (
           <button onClick={() => setShowAddForm(true)} className="mb-5 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition">
-            + Add New Charging Point
+            {t("operator.addNew")}
           </button>
         )}
 
@@ -131,7 +133,7 @@ export function OperatorDashboard({ className, ...props }: OperatorDashboardProp
         <div className="flex flex-col gap-3">
           {chargingPoints.length === 0 && (
             <div className="bg-white rounded-xl border border-gray-200 p-6 text-center text-sm text-gray-400">
-              No charging points found.
+              {t("operator.noPoints")}
             </div>
           )}
           {chargingPoints.map((cp) => (
@@ -142,23 +144,23 @@ export function OperatorDashboard({ className, ...props }: OperatorDashboardProp
                   <span className="text-xs text-gray-400">{cp.id}</span>
                 </div>
                 <span className={`text-xs px-2.5 py-1 rounded-full font-medium ${cp.status === "active" ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}>
-                  {cp.status === "active" ? "Active" : "Suspended"}
+                  {cp.status === "active" ? t("operator.status.active") : t("operator.status.suspended")}
                 </span>
               </div>
               <div className="flex flex-col gap-1 mb-4 text-sm text-gray-500">
-                <p>Location: {cp.location}</p>
-                <p>Accessibility: {cp.accessibility}</p>
-                <p>Cost: {cp.cost}</p>
+                <p>{t("operator.location")}: {cp.location}</p>
+                <p>{t("operator.accessibility")}: {cp.accessibility}</p>
+                <p>{t("operator.cost")}: {cp.cost}</p>
               </div>
               <div className="flex gap-2">
                 <button onClick={() => startEdit(cp)} className="px-3 py-1.5 text-xs font-medium bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition">
-                  Edit
+                  {t("operator.edit")}
                 </button>
                 <button onClick={() => handleSuspend(cp.id)} className={`px-3 py-1.5 text-xs font-medium rounded-lg transition ${cp.status === "active" ? "bg-amber-100 text-amber-700 hover:bg-amber-200" : "bg-green-100 text-green-700 hover:bg-green-200"}`}>
-                  {cp.status === "active" ? "Suspend" : "Reactivate"}
+                  {cp.status === "active" ? t("operator.suspend") : t("operator.reactivate")}
                 </button>
                 <button onClick={() => handleDelete(cp.id)} className="px-3 py-1.5 text-xs font-medium bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition">
-                  Remove
+                  {t("operator.remove")}
                 </button>
               </div>
             </div>
