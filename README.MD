@@ -32,6 +32,9 @@
 1. In a new terminal, `cd client`
 2. `npm run dev`
 
+#### Tests
+1. `npm test`
+
 ### Running a production build locally
 Environment
 1. In backend [.env](.env), change `NODE_ENV` to `production`
