@@ -8,7 +8,8 @@
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "db:init": "node scripts/db/db.js init",
     "db:modify": "node scripts/db/db.js modify",
-    "db:populate": "node scripts/db/db.js populate"
+    "db:populate": "node scripts/db/db.js populate",
+    "test": "tap"
   },
   "dependencies": {
     "better-auth": "^1.5.5",
@@ -16,14 +17,16 @@
     "dotenv": "^17.3.1",
     "express": "^5.2.1",
     "pg": "^8.20.0",
-    "resend": "^6.9.3",
     "zod": "^4.3.6"
   },
   "devDependencies": {
+    "@tapjs/asserts": "^4.3.4",
+    "@tapjs/typescript": "^3.5.4",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
     "@types/node": "^25.5.0",
     "@types/pg": "^8.18.0",
+    "tap": "^21.6.2",
     "ts-node": "^10.9.2",
     "tslib": "^2.8.1",
     "typescript": "^5.9.3"
