@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next";
 import { GeoJSON, MapContainer, Marker, TileLayer, useMap } from "react-leaflet";
 import { NavLink } from "react-router-dom";
 import { CycleIcon, DriveIcon, WalkIcon, WheelchairIcon } from "../components/ModeIcons";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
 
 const API_BASE: string = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
 const uob = new LatLng(52.449832, -1.930633);
@@ -207,20 +208,23 @@ const MapRoutingPage = () => {
             placeholder={t("map.searchPlaceholder")}
             style={{ padding: "8px", width: "100%", maxWidth: "300px", boxSizing: "border-box", margin: 0 }}
           />
-          <NavLink
-            style={{ ...navLinkStyle, margin: 0, float: "none" }}
-            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "#1c5fcc"}
-            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "#348ceb"}
-            to="/profile"
-          >
-            {t("map.myProfile")}
-          </NavLink>
+          <div style={{  display: "flex", gap: "10px", alignItems: "center" }}>
+            <LanguageSwitcher />
+            <NavLink
+              style={{ ...navLinkStyle, margin: 0, float: "none" }}
+              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "#1c5fcc"}
+              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "#348ceb"}
+              to="/profile"
+            >
+              {t("map.myProfile")}
+            </NavLink>
+          </div>
         </div>
 
-        <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "10px" }}>
+        <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "10px", justifyContent: "space-between" }}>
           <button style={{ margin: 0 }} onClick={() => setShowFilters(!showFilters)}>{t("map.filters")}</button>
 
-          <div style={{ marginLeft: "auto", display: "flex", gap: "10px", flexWrap: "wrap", alignItems: "center" }}>
+          <div style={{  display: "flex", gap: "10px", flexWrap: "wrap", alignItems: "center" }}>
             <div className="mode-container" style={{ margin: 0, marginLeft: "auto" }}>
               {[
                 { id: "foot-walking", label: t("map.mode.walk"), icon: <WalkIcon /> },

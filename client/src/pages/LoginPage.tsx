@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { authClient } from "../lib/auth-client";
+import LanguageSwitcher from "../components/LanguageSwitcher";
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -77,6 +78,10 @@ export default function LoginPage() {
       <p>
         {t("login.noAccount")} <button type="button" onClick={() => navigate("/signup")} disabled={loading}>{t("login.signUp")}</button>
       </p>
+
+      <div style={{ position: 'fixed', bottom: '12px', right: '12px' }}>
+        <LanguageSwitcher />
+      </div>
     </div>
   );
 }

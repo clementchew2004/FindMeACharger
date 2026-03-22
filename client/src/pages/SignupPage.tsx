@@ -2,6 +2,7 @@ import { authClient } from "@/lib/auth-client";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
+import LanguageSwitcher from "../components/LanguageSwitcher";
 
 export default function SignupPage() {
   const navigate = useNavigate();
@@ -92,6 +93,9 @@ export default function SignupPage() {
           </button>
         </div>
       </form>
+      <div style={{ position: 'fixed', bottom: '12px', right: '12px' }}>
+        <LanguageSwitcher />
+      </div>
     </div>
   );
 }
