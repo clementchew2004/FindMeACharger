@@ -6,7 +6,7 @@ dotenv.config();
 const ORS_API_KEY = process.env.ORS_API_KEY;
 
 export const getRoute = async (req: Request, res: Response) => {
-  const { start, end } = req.query; // lng,lat
+  const { start, end, mode } = req.query; // lng,lat
 
   if (!start || !end) {
     res.status(400).json({ error: "Missing start or end coordinates" });
@@ -15,8 +15,8 @@ export const getRoute = async (req: Request, res: Response) => {
 
   try {
     const response = await fetch(
-      `https://api.openrouteservice.org/v2/directions/foot-walking?api_key=${ORS_API_KEY}&start=${start}&end=${end}`
-      // TODO add other route profiles e.g. wheelchair, cycling-regular, driving-car
+      `https://api.openrouteservice.org/v2/directions/${mode}?api_key=${ORS_API_KEY}&start=${start}&end=${end}`
+      // mode can be foot-walking, wheelchair, cycling-regular, or driving-car
     );
 
     if (!response.ok) {

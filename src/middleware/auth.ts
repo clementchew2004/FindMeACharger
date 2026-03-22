@@ -22,10 +22,11 @@ export const authMiddleware = async (req: Request, res: Response, next: NextFunc
       req.session = requestSession.session;
     } else {
       req.user = {
-        id: "test-user-123",
+        id: "123",
+        name: "test-user-123",
         email: "test@example.com",
-        name: "Test User",
         emailVerified: false,
+        publicName: "Test User",
         createdAt: new Date(),
         updatedAt: new Date(),
       };
