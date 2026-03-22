@@ -5,7 +5,7 @@ import { authClient } from "../lib/auth-client";
 interface UserProfile {
   name: string;
   email: string;
-  public_name: string | null;
+  publicName: string | null;
 }
 
 export default function ProfilePage() {
@@ -16,26 +16,23 @@ export default function ProfilePage() {
   const [status, setStatus] = useState<{ message: string; type: "error" | "success"; } | null>(null);
 
   useEffect(() => {
-    fetchProfile();
+    getProfile();
   }, []);
 
-  const fetchProfile = async () => {
+  const getProfile = async () => {
     try {
-      const { data: session } = await authClient.getSession();
-      if (!session) {
+      const { data: session, error } = await authClient.getSession();
+
+      if (error || !session) {
         navigate("/");
         return;
       }
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || "http://localhost:8000"}/api/user/profile`, {
-        credentials: "include"
+
+      setProfile({
+        name: session.user.name,
+        email: session.user.email,
+        publicName: (session.user as any).publicName || null,
       });
-
-      if (!response.ok) {
-        throw new Error("Failed to load profile");
-      }
-
-      const data = await response.json();
-      setProfile(data);
     } catch (err: any) {
       console.error(err);
       setStatus({ message: "Failed to load profile details", type: "error" });
@@ -51,25 +48,30 @@ export default function ProfilePage() {
 
     const formData = new FormData(event.currentTarget);
     const name = formData.get("name") as string;
-    const public_name = formData.get("public_name") as string;
+    const publicName = (formData.get("public_name") as string) || null;
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || "http://localhost:8000"}/api/user/profile`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        credentials: "include",
-        body: JSON.stringify({ name, public_name }),
-      });
+      const { error } = await authClient.updateUser({
+        name,
+        publicName
+      } as any);
 
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => null);
-        throw new Error(errorData?.error || "Failed to update profile");
+      if (error) {
+        throw new Error(error.message || "Failed to update profile");
       }
 
-      const updatedData = await response.json();
-      setProfile(updatedData);
+      const updatedSessionData = await authClient.getSession();
+
+      if (updatedSessionData.error || !updatedSessionData.data) {
+        throw new Error(updatedSessionData.error?.message || "Failed to update profile");
+      }
+
+      setProfile({
+        name: updatedSessionData.data.user.name,
+        email: updatedSessionData.data.user.email,
+        publicName: (updatedSessionData.data.user as any).publicName || null,
+      });
+
       setStatus({ message: "Profile updated successfully!", type: "success" });
     } catch (err: any) {
       setStatus({ message: err.message, type: "error" });
@@ -150,7 +152,7 @@ export default function ProfilePage() {
               id="public_name"
               name="public_name"
               type="text"
-              defaultValue={profile.public_name || ""}
+              defaultValue={profile.publicName || ""}
               disabled={saving}
               placeholder="Optional"
               className="w-full px-3.5 py-2.5 my-2 border border-gray-300 rounded-md text-base focus:outline-none focus:border-blue-500 disabled:opacity-50"
