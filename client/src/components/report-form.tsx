@@ -30,7 +30,7 @@ const ISSUE_TYPES = [
 
 export function ReportForm({ className, ...props }: ReportFormProps) {
   const [chargingPointId, setChargingPointId] = useState("");
-  const [issueTypes, setIssueTypes] = useState([]);
+  const [issueTypes, setIssueTypes] = useState<string[]>([]);
   const [issueType, setIssueType] = useState("");
   const [description, setDescription] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -46,7 +46,13 @@ export function ReportForm({ className, ...props }: ReportFormProps) {
       return res.json();
     })
     .then((data) => {
-      setIssueTypes(data.reportTypes);
+      if (Array.isArray(data)) {
+        setIssueTypes(data);
+      } else if (Array.isArray(data.reportTypes)) {
+        setIssueTypes(data.reportTypes);
+      } else {
+        setIssueTypes([]);
+      }
     })
     .catch((_) => {});
   }, []);
@@ -121,7 +127,7 @@ export function ReportForm({ className, ...props }: ReportFormProps) {
                   className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
                 >
                   <option value="">Select an issue type</option>
-                  {issueTypes.map((type) => (
+                  {ISSUE_TYPES.map((type) => (
                     <option key={type} value={type}>
                       {type}
                     </option>
