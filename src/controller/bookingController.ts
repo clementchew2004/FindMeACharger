@@ -33,7 +33,7 @@ export const makeBooking = async (req: Request, res: Response) => {
                 FROM bookings booking
                 WHERE 
                     booking.charging_bay_id = $1
-                    AND ((NOW() BETWEEN booking.start_time AND booking.end_time) OR ((NOW() + INTERVAL '$2 minutes') BETWEEN booking.start_time AND booking.end_time));
+                    AND ((NOW() BETWEEN booking.start_time AND booking.end_time) OR ((NOW() + make_interval(mins => $2)) BETWEEN booking.start_time AND booking.end_time));
             `,
             [charging_bay_id, booking_length]
         )
@@ -53,7 +53,7 @@ export const makeBooking = async (req: Request, res: Response) => {
                 INSERT INTO 
                     bookings (charging_bay_id, customer_id, start_time, end_time)
                 VALUES
-                    ($1, $2, NOW(), NOW() + INTERVAL '$3 minutes')
+                    ($1, $2, NOW(), NOW() + make_interval(mins => $3))
                 RETURNING *;
             `,
             [charging_bay_id, customer_id, booking_length]
