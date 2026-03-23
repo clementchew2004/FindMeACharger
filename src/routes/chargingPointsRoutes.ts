@@ -2,6 +2,7 @@ import { Router } from "express";
 import { getChargingPointStatus, getChargingPointsWithinDistance, getChargingPointAccessibility} from "../controller/chargingPointController";
 import { getAllChargingPoints, createChargingPoint, updateChargingPoint, deleteChargingPoint } from "../controller/chargingPointController";
 import { getChargingBaysByChargingPoint, createChargingBay, updateChargingBay } from "../controller/chargingPointController";
+import { filterChargingPoints } from "../controller/chargingPointController";
 import { authMiddleware } from "../middleware/auth";
 import { requireModOrOp } from "../middleware/rbac";
 
@@ -13,6 +14,7 @@ router.get("/charging-points/:id/accessibility", getChargingPointAccessibility)
 router.get("/charging-points/nearby", getChargingPointsWithinDistance)
 router.get("/charging-points", getAllChargingPoints)
 router.get("/charging-points/:id/bays", getChargingBaysByChargingPoint)
+router.get("/charging-points/filter", filterChargingPoints)
 
 // Protected admin routes
 router.post("/charging-points", authMiddleware, requireModOrOp, createChargingPoint)

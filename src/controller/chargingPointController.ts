@@ -1,6 +1,8 @@
 import { Request, Response } from "express";
 import { pool } from "../lib/db";
 import { AsyncResource } from "node:async_hooks";
+import { log } from "node:console";
+import { parse } from "node:path";
 
 export const getChargingPointIdFromShorthand = async (shorthand : any) => {
     const result = await pool.query(
@@ -158,6 +160,8 @@ export const getChargingPointsWithinDistance = async (req: Request, res: Respons
         res.status(500).json({error: "Failed to fetch charging points"});
     }
 }
+
+
 
 // Charging Point Management F16
 export const getAllChargingPoints = async (req: Request, res: Response) => {
@@ -473,3 +477,229 @@ export const updateChargingBay = async (req: Request, res: Response) => {
         res.status(500).json({ error: "Failed to update charging bay" });
     }
 };
+
+export const filterChargingPoints = async (req: Request, res: Response) => {
+    const {
+        longitude,
+        latitude,
+        maxDistance,
+        availability,
+        wheelchair_accessible,
+        blocked_socket,
+        bay_type
+    } = req.query;
+
+    const hasAnyDistanceParam = longitude !== undefined || latitude !== undefined || maxDistance !==undefined;
+
+    if(hasAnyDistanceParam) {
+        if(longitude === undefined || latitude === undefined || maxDistance === undefined) {
+            return res.status(400).json({
+                error: "latitude, longitude and maxDistance must all be provided"
+            });
+        }
+    }
+
+    let parsedLatitude: number | null = null;
+    let parsedLongitude: number | null = null;
+    let parsedMaxDistance: number | null = null;
+
+    if (hasAnyDistanceParam) {
+        parsedLatitude = Number(latitude);
+        parsedLongitude = Number(longitude);
+        parsedMaxDistance = Number(maxDistance);
+
+        if (Number.isNaN(parsedLatitude) || Number.isNaN(parsedLongitude) || Number.isNaN(parsedMaxDistance)) {
+            return res.status(400).json({
+                error: "latitude, longitude and maxDistance must be valid numbers"
+            });
+        }
+    }
+
+    if (availability !== undefined && availability !== "available" && availability !== "busy") {
+        return res.status(400).json({
+            error: "availability must be either 'available' or 'busy'"
+        });
+    }
+
+    if (wheelchair_accessible !== undefined && wheelchair_accessible !== "true" && wheelchair_accessible !== "false") {
+        return res.status(400).json({
+            error: "wheelchair_accessible must be 'true' or 'false' "
+        });
+    }
+
+    if(blocked_socket !== undefined && blocked_socket !== "true" && blocked_socket !== "false") {
+        return res.status(400).json({
+            error: "blocked_socket must be 'true' or 'false' "
+        });
+    }
+
+    let parsedBayTypeId: number | null = null;
+    let parsedBayTypeName: string | null = null;
+    
+    if(bay_type !== undefined) {
+        const bayTypeAsNumber = Number(bay_type);
+
+        if(!Number.isNaN(bayTypeAsNumber)) {
+            parsedBayTypeId = bayTypeAsNumber; 
+        } else {
+            parsedBayTypeName = String(bay_type).trim();
+            
+            if (!parsedBayTypeName) {
+                return res.status(400).json({
+                    error: "bay_type must not be empty"
+                })
+            }
+        }
+    }
+
+    const queryParams: any[] = [];
+    const whereConditions: string[] = [];
+
+    const availabilityFormula = `
+        CASE
+            WHEN EXISTS (
+                SELECT 1 
+                FROM bookings b
+                WHERE b.charging_bay_id = cb.charging_bay_id
+                    AND NOW() BETWEEN b.start_time AND b.end_time
+            ) THEN 'busy' 
+            ELSE 'available' 
+        END
+    `;
+
+    let distanceSelect = `NULL::float AS distance`;
+
+    if(hasAnyDistanceParam) {
+        queryParams.push(parsedLatitude, parsedLongitude, parsedMaxDistance);
+
+        distanceSelect = `
+            (
+                6371 * acos(
+                    cos(radians($1)) * cos(radians(point.latitude)) * cos(radians(point.longitude) - radians($2)) +
+                    sin(radians($1)) * sin(radians(point.latitude))
+                )
+            ) AS distance
+        `;
+
+        whereConditions.push(`
+            (
+                6371 * acos(
+                    cos(radians($1)) * cos(radians(point.latitude)) * cos(radians(point.longitude) - radians($2)) +
+                    sin(radians($1)) * sin(radians(point.latitude))
+                )
+            ) <= $3
+        `);
+    }
+
+    if(availability !== undefined) {
+        queryParams.push(availability);
+
+    whereConditions.push(`${availabilityFormula} = $${queryParams.length}`);
+    }
+
+    if (wheelchair_accessible !== undefined) {
+        queryParams.push(wheelchair_accessible === "true");
+        whereConditions.push(`cb.wheelchair_accessible = $${queryParams.length}`);
+    }
+
+    if (blocked_socket !== undefined) {
+        queryParams.push(blocked_socket === "true");
+        whereConditions.push(`cb.blocked_socket = $${queryParams.length}`);
+    }
+
+    if (parsedBayTypeId !== null) {
+        queryParams.push(parsedBayTypeId);
+        whereConditions.push(`cb.bay_type = $${queryParams.length}`);
+    }
+
+    if (parsedBayTypeName !== null) {
+        queryParams.push(parsedBayTypeName);
+        whereConditions.push(`bt.bay_type_name = $${queryParams.length}`);
+    }
+
+    const whereClause =
+        whereConditions.length > 0
+            ? `WHERE ${whereConditions.join(" AND ")}`
+            : "";
+
+    const orderClause = hasAnyDistanceParam
+        ? `ORDER BY distance ASC, point.charging_point_id ASC, cb.charging_bay_number ASC`
+        : `ORDER BY point.charging_point_id ASC, cb.charging_bay_number ASC`;
+
+    try {
+        const result = await pool.query(
+            `
+            SELECT
+                point.charging_point_id,
+                point.shorthand_name,
+                point.charging_point_location,
+                point.latitude,
+                point.longitude,
+                ${distanceSelect},
+                cb.charging_bay_id,
+                cb.charging_bay_number,
+                cb.bay_type,
+                bt.bay_type_name,
+                cb.is_operational,
+                cb.wheelchair_accessible,
+                cb.blocked_socket,
+                cb.accessibility_notes,
+                ${availabilityFormula} AS status
+            FROM charging_points point
+            JOIN charging_bays cb
+                ON cb.charging_point_id = point.charging_point_id
+            JOIN bay_types bt
+                ON cb.bay_type = bt.bay_type_id
+            ${whereClause}
+            ${orderClause};
+            `,
+            queryParams
+        );
+
+        if (result.rows.length === 0) {
+            return res.status(200).json([]);
+        }
+
+        const groupedResults = result.rows.reduce((acc: any[], row: any) => {
+            let chargingPoint = acc.find(
+                (item) => item.chargingPointId === row.charging_point_id
+            );
+
+            if (!chargingPoint) {
+                chargingPoint = {
+                    chargingPointId: row.charging_point_id,
+                    shorthand_name: row.shorthand_name,
+                    charging_point_location: row.charging_point_location,
+                    latitude: row.latitude,
+                    longitude: row.longitude,
+                    distance: row.distance !== null ? Number(row.distance) : null,
+                    bays: []
+                };
+                acc.push(chargingPoint);
+            }
+
+            chargingPoint.bays.push({
+                charging_bay_id: row.charging_bay_id,
+                charging_bay_number: row.charging_bay_number,
+                bay_type: row.bay_type,
+                bay_type_name: row.bay_type_name,
+                is_operational: row.is_operational,
+                wheelchair_accessible: row.wheelchair_accessible,
+                blocked_socket: row.blocked_socket,
+                accessibility_notes: row.accessibility_notes,
+                status: row.status
+            });
+
+            return acc;
+        }, []);
+
+        res.status(200).json(groupedResults);
+    } catch (error) {
+        console.error("Filter charging points error:", error);
+        res.status(500).json({ error: "Failed to filter charging points" });
+    }
+};
+    
+
+
+
