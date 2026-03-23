@@ -5,7 +5,7 @@ import MapRoutingPage from "./pages/MapRoutingPage";
 import ReportPage from "./pages/ReportPage";
 import SignupPage from "./pages/SignupPage";
 import ProfilePage from "./pages/ProfilePage";
-import OperatorDashboardPage from "./pages/OperatorDashboardPage";
+import ChargingPointManagementPage from "./pages/ChargingPointManagementPage";
 
 function App() {
   return (
@@ -16,7 +16,7 @@ function App() {
         <Route path="/routing" element={<MapRoutingPage />} />
         <Route path="/report" element={<ReportPage />} />
         <Route path="/profile" element={<ProfilePage />} />
-        <Route path="/manage-points" element={<OperatorDashboardPage />} />
+        <Route path="/manage" element={<ChargingPointManagementPage />} />
 
       </Routes>
     </BrowserRouter>
