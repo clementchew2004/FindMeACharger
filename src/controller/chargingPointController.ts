@@ -201,7 +201,7 @@ export const createChargingPoint = async(req: Request, res: Response) => {
         shorthand_name,
         cost_per_kwh,
         is_operational,
-        accessbility_features
+        accessibility_features
     } = req.body
 
     if (!owner_id || !shorthand_name || !charging_point_name) {
@@ -233,7 +233,7 @@ export const createChargingPoint = async(req: Request, res: Response) => {
             shorthand_name,
             cost_per_kwh ?? null,
             is_operational ?? true,
-            accessbility_features || []
+            accessibility_features || []
         ]
     );
 
@@ -266,7 +266,7 @@ export const updateChargingPoint = async (req: Request, res: Response) => {
         shorthand_name,
         cost_per_kwh,
         is_operational,
-        accessbility_features
+        accessibility_features
     } = req.body;
 
     try {
@@ -293,7 +293,7 @@ export const updateChargingPoint = async (req: Request, res: Response) => {
                 shorthand_name,
                 cost_per_kwh,
                 is_operational,
-                accessbility_features,
+                accessibility_features,
                 id
             ]
         );
