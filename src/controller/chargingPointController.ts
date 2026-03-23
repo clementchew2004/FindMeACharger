@@ -169,7 +169,10 @@ export const getAllChargingPoints = async (req: Request, res: Response) => {
                 charging_point_location,
                 latitude,
                 longitude,
-                shorthand_name
+                shorthand_name, 
+                charging_point_name,
+                cost_per_kwh,
+                is_operational
             FROM 
                 charging_points 
             ORDER BY charging_point_id
@@ -190,36 +193,44 @@ export const getAllChargingPoints = async (req: Request, res: Response) => {
 
 export const createChargingPoint = async(req: Request, res: Response) => {
     const {
-        charging_point_id,
+        charging_point_name,
         owner_id,
         charging_point_location,
         latitude,
         longitude,
-        shorthand_name
+        shorthand_name,
+        cost_per_kwh,
+        is_operational
     } = req.body
 
-    if (!owner_id || !shorthand_name) {
-        res.status(400).json({error: "owner_id and shorthand_name are required"});
+    if (!owner_id || !shorthand_name || !charging_point_name) {
+        res.status(400).json({error: "owner_id, shorthand_name and charging_point_name are required"});
     }
 
     try {
         const result = await pool.query (
         `INSERT INTO charging_points(
             owner_id,
+            charging_point_name,
             charging_point_location,
             latitude,
             longitude,
-            shorthand_name
+            shorthand_name,
+            cost_per_kwh,
+            is_operational
         )
-        VALUES ($1, $2, $3, $4, $5)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
         RETURNING *;
         `,
         [
             owner_id,
+            charging_point_name,
             charging_point_location || null,
             latitude || null,
             longitude || null,
-            shorthand_name
+            shorthand_name,
+            cost_per_kwh ?? null,
+            is_operational ?? true 
         ]
     );
 
@@ -245,10 +256,13 @@ export const updateChargingPoint = async (req: Request, res: Response) => {
     const {id} = req.params;
 
     const {
+        charging_point_name,
         charging_point_location,
         latitude,
         longitude,
-        shorthand_name
+        shorthand_name,
+        cost_per_kwh,
+        is_operational
     } = req.body;
 
     try {
@@ -256,18 +270,24 @@ export const updateChargingPoint = async (req: Request, res: Response) => {
             `
             UPDATE charging_points 
             SET
-                charging_point_location = COALESCE($1, charging_point_location),
-                latitude = COALESCE($2, latitude),
-                longitude = COALESCE($3, longitude),
-                shorthand_name = COALESCE($4, shorthand_name)
-            WHERE charging_point_id = $5
+                charging_point_name = COALESCE($1, charging_point_name),
+                charging_point_location = COALESCE($2, charging_point_location),
+                latitude = COALESCE($3, latitude),
+                longitude = COALESCE($4, longitude),
+                shorthand_name = COALESCE($5, shorthand_name),
+                cost_per_kwh = COALESCE($6, cost_per_kwh),
+                is_operational = COALESCE($7, is_operational),
+            WHERE charging_point_id = $8
             RETURNING *
             `,
             [ 
+                charging_point_name,
                 charging_point_location,
                 latitude,
                 longitude,
                 shorthand_name,
+                cost_per_kwh,
+                is_operational,
                 id
             ]
         );
