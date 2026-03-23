@@ -152,7 +152,7 @@ export function ReportForm({ className, ...props }: ReportFormProps) {
                   className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
                 >
                   <option value="">Select an issue type</option>
-                  {ISSUE_TYPES.map((type) => (
+                  {(issueTypes.length > 0 ? issueTypes : ISSUE_TYPES).map((type) => (
                     <option key={type} value={type}>
                       {type}
                     </option>
