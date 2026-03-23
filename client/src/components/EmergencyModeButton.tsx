@@ -7,11 +7,18 @@ import {
 } from "@/components/ui/card";
 import { useState } from "react";
 
+// adjusted to match api response -ivan
 type ChargingPoint = {
-  id: string;
-  name: string;
-  lat: number;
-  lng: number;
+  charging_point_id?: string;
+  charging_point_location?: string;
+  distance?: number;
+  latitude?: number;
+  longitude?: number;
+  shorthand_name?: string;
+  // id?: string;
+  // name?: string;
+  // lat?: number;
+  // lng?: number;
 };
 
 type Props = {
@@ -53,12 +60,12 @@ export default function EmergencyModeButton({
 
             {chargingPoints.map((point) => (
               <Button
-                key={point.id}
+                key={point.charging_point_id}
                 variant="outline"
                 onClick={() => onPointSelected(point)}
                 className="justify-start"
               >
-                {point.name}
+                {point.shorthand_name || point.charging_point_location || "Unknown Charging Point"}
               </Button>
             ))}
           </CardContent>
