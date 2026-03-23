@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { GeoJSON, MapContainer, Marker, TileLayer, useMap } from "react-leaflet";
 import { NavLink } from "react-router-dom";
 import { CycleIcon, DriveIcon, WalkIcon, WheelchairIcon } from "../components/ModeIcons";
+import EmergencyModeButton from "../components/EmergencyModeButton";
 
 const API_BASE: string = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
 const uob = new LatLng(52.449832, -1.930633);
@@ -217,7 +218,16 @@ const MapRoutingPage = () => {
 
         <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "10px" }}>
           <button style={{ margin: 0 }} onClick={() => setShowFilters(!showFilters)}>Filters</button>
-          
+          <button style={{ margin: 0 }} onClick={() => setShowFilters(!showFilters)}>Filters</button>
+
+          <EmergencyModeButton
+              chargingPoints={chargingPoints}
+              userLocation={location ? { lat: location.position.lat, lng: location.position.lng } : null}
+              onPointSelected={(point) => {
+                  setTargetPoint(point);
+                  setShowMarkerInfo(true);
+              }}
+          />
           <NavLink
             to="/report"
             style={{ ...navLinkStyle, margin: 0, float: "none" }}
