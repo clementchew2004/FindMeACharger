@@ -9,7 +9,7 @@
     "db:init": "node scripts/db/db.js init",
     "db:modify": "node scripts/db/db.js modify",
     "db:populate": "node scripts/db/db.js populate",
-    "test": "tap"
+    "test": "tap \"tests/**/*.ts\""
   },
   "dependencies": {
     "better-auth": "^1.5.5",
