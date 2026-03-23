@@ -1,6 +1,5 @@
 import { Request, Response } from "express";
 import { pool } from "../lib/db";
-import { AsyncResource } from "node:async_hooks";
 
 export const getChargingPointIdFromShorthand = async (shorthand : any) => {
     const result = await pool.query(
@@ -172,7 +171,8 @@ export const getAllChargingPoints = async (req: Request, res: Response) => {
                 shorthand_name, 
                 charging_point_name,
                 cost_per_kwh,
-                is_operational
+                is_operational,
+                accessibility_features
             FROM 
                 charging_points 
             ORDER BY charging_point_id
@@ -200,7 +200,8 @@ export const createChargingPoint = async(req: Request, res: Response) => {
         longitude,
         shorthand_name,
         cost_per_kwh,
-        is_operational
+        is_operational,
+        accessbility_features
     } = req.body
 
     if (!owner_id || !shorthand_name || !charging_point_name) {
@@ -217,9 +218,10 @@ export const createChargingPoint = async(req: Request, res: Response) => {
             longitude,
             shorthand_name,
             cost_per_kwh,
-            is_operational
+            is_operational,
+            accessibility_features
         )
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
         RETURNING *;
         `,
         [
@@ -230,7 +232,8 @@ export const createChargingPoint = async(req: Request, res: Response) => {
             longitude || null,
             shorthand_name,
             cost_per_kwh ?? null,
-            is_operational ?? true 
+            is_operational ?? true,
+            accessbility_features || []
         ]
     );
 
@@ -262,7 +265,8 @@ export const updateChargingPoint = async (req: Request, res: Response) => {
         longitude,
         shorthand_name,
         cost_per_kwh,
-        is_operational
+        is_operational,
+        accessbility_features
     } = req.body;
 
     try {
@@ -277,7 +281,8 @@ export const updateChargingPoint = async (req: Request, res: Response) => {
                 shorthand_name = COALESCE($5, shorthand_name),
                 cost_per_kwh = COALESCE($6, cost_per_kwh),
                 is_operational = COALESCE($7, is_operational),
-            WHERE charging_point_id = $8
+                accessibility_features = COALESCE($8, accessibility_features)
+            WHERE charging_point_id = $9
             RETURNING *
             `,
             [ 
@@ -288,6 +293,7 @@ export const updateChargingPoint = async (req: Request, res: Response) => {
                 shorthand_name,
                 cost_per_kwh,
                 is_operational,
+                accessbility_features,
                 id
             ]
         );
@@ -491,5 +497,22 @@ export const updateChargingBay = async (req: Request, res: Response) => {
     } catch (error) {
         console.error("Update charging bay error:", error);
         res.status(500).json({ error: "Failed to update charging bay" });
+    }
+};
+
+export const getChargingPointStats = async (req: Request, res: Response) => {
+    try {
+        const result = await pool.query(`
+               SELECT
+                    COUNT(*) AS total,
+                    COUNT(*) FILTER (WHERE is_operational = true) AS active,
+                    COUNT(*) FILTER (WHERE is_operational = false) AS suspended
+                FROM charging_points;
+            `);
+
+            res.json(result.rows[0]);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({error: "Failed to fetch stats"});
     }
 };
