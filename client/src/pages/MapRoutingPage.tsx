@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next";
 import { GeoJSON, MapContainer, Marker, TileLayer, useMap } from "react-leaflet";
 import { NavLink } from "react-router-dom";
 import { CycleIcon, DriveIcon, WalkIcon, WheelchairIcon } from "../components/ModeIcons";
+import EmergencyModeButton from "../components/EmergencyModeButton";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 
 const API_BASE: string = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
@@ -224,7 +225,14 @@ const MapRoutingPage = () => {
         <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "10px", justifyContent: "space-between" }}>
           <div style={{ display: "flex", gap: "10px", flexWrap: "wrap", alignItems: "center" }}>
             <button style={{ margin: 0 }} onClick={() => setShowFilters(!showFilters)}>{t("map.filters")}</button>
-
+            <EmergencyModeButton
+              chargingPoints={chargingPoints}
+              userLocation={location ? { lat: location.position.lat, lng: location.position.lng } : null}
+              onPointSelected={(point) => {
+                setTargetPoint(point);
+                setShowMarkerInfo(true);
+              }}
+            />
             <NavLink
               to="/report"
               style={{ ...navLinkStyle, margin: 0, float: "none" }}

@@ -2,6 +2,8 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { authClient } from "../lib/auth-client";
+
+const API_BASE: string = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
 import LanguageSwitcher from "../components/LanguageSwitcher";
 
 export default function LoginPage() {
@@ -32,8 +34,22 @@ export default function LoginPage() {
         setLoading(true);
         setErrorMessage(null);
       },
-      onSuccess: () => {
-        navigate("/routing");
+      onSuccess: async () => {
+        try {
+          const res = await fetch(`${API_BASE}/api/me`, {
+            credentials: "include"
+          });
+
+          const data = await res.json();
+
+          if (data.isOperator) {
+            navigate("/manage");
+          } else {
+            navigate("/routing");
+          }
+        } catch {
+          navigate("/routing");
+        }
       },
       onError: (ctx: any) => {
         const code = ctx.error.code;
@@ -82,7 +98,7 @@ export default function LoginPage() {
         <div style={{ width: "300px", marginTop: "10px" }}>
           <button
             type="button"
-            onClick={() => navigate("/manage-points")}
+            onClick={() => navigate("/manage")}
             disabled={loading}
             style={{ width: "100%" }}
           >
