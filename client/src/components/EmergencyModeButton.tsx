@@ -6,6 +6,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 
 // adjusted to match api response -ivan
 type ChargingPoint = {
@@ -32,6 +33,7 @@ export default function EmergencyModeButton({
   userLocation,
   onPointSelected,
 }: Props) {
+  const { t } = useTranslation();
   const [active, setActive] = useState(false);
 
   return (
@@ -41,20 +43,20 @@ export default function EmergencyModeButton({
         onClick={() => setActive(!active)}
         className={active ? "bg-red-600 hover:bg-red-700" : ""}
       >
-        {active ? "Exit Emergency Mode" : "Emergency Mode"}
+        {active ? t("emergency.toggle.on") : t("emergency.toggle.off")}
       </Button>
 
       {/* Emergency panel */}
       {active && (
         <Card>
           <CardHeader>
-            <CardTitle>Nearby Charging Points</CardTitle>
+            <CardTitle>{t("emergency.panel.title")}</CardTitle>
           </CardHeader>
 
           <CardContent className="flex flex-col gap-2">
             {chargingPoints.length === 0 && (
               <p className="text-sm text-muted-foreground">
-                No charging points available
+                {t("emergency.panel.noPoints")}
               </p>
             )}
 
@@ -65,7 +67,7 @@ export default function EmergencyModeButton({
                 onClick={() => onPointSelected(point)}
                 className="justify-start"
               >
-                {point.shorthand_name || point.charging_point_location || "Unknown Charging Point"}
+                {point.shorthand_name || point.charging_point_location || t("emergency.unknownPoint")}
               </Button>
             ))}
           </CardContent>

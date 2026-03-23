@@ -152,7 +152,12 @@ const resources = {
       "report.submit": "Submit Report",
       "report.submitting": "Submitting...",
       "report.success": "Your report has been submitted. Thank you!",
-      "report.error": "Something went wrong. Please try again."
+      "report.error": "Something went wrong. Please try again.",
+      "emergency.toggle.off": "Emergency Mode",
+      "emergency.toggle.on": "Exit Emergency Mode",
+      "emergency.panel.title": "Nearby Charging Points",
+      "emergency.panel.noPoints": "No charging points available",
+      "emergency.unknownPoint": "Unknown Charging Point"
     }
   },
   fr: {
@@ -304,7 +309,12 @@ const resources = {
       "report.submit": "Soumettre le signalement",
       "report.submitting": "Envoi en cours...",
       "report.success": "Votre signalement a été soumis. Merci !",
-      "report.error": "Une erreur s'est produite. Veuillez réessayer."
+      "report.error": "Une erreur s'est produite. Veuillez réessayer.",
+      "emergency.toggle.off": "Mode d'urgence",
+      "emergency.toggle.on": "Quitter le mode d'urgence",
+      "emergency.panel.title": "Points de charge à proximité",
+      "emergency.panel.noPoints": "Aucun point de charge disponible",
+      "emergency.unknownPoint": "Point de charge inconnu"
     }
   }
 };
