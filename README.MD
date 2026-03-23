@@ -35,6 +35,10 @@
 #### Tests
 1. `npm test`
 
+#### Frontend Integration Tests
+1. `cd client`
+2. `npm test`
+
 ### Running a production build locally
 Environment
 1. In backend [.env](.env), change `NODE_ENV` to `production`
