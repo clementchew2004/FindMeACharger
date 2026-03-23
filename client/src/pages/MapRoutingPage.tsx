@@ -3,6 +3,7 @@ import "leaflet/dist/leaflet.css";
 import { useEffect, useRef, useState } from "react";
 import { GeoJSON, MapContainer, Marker, TileLayer, useMap } from "react-leaflet";
 import { NavLink } from "react-router-dom";
+import { CycleIcon, DriveIcon, WalkIcon, WheelchairIcon } from "../components/ModeIcons";
 
 const API_BASE: string = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
 const uob = new LatLng(52.449832, -1.930633);
@@ -69,7 +70,9 @@ const MapRoutingPage = () => {
   const [chargingPoints, setChargingPoints] = useState<any>([]);
   const [targetPoint, setTargetPoint] = useState<any>(null);
   const [targetPointBays, setTargetPointBays] = useState<any>(null);
+  const [updateCounter, setUpdateCounter] = useState<number>(0);
   const geoJSONReference = useRef<any>(null);
+  const [mode, setMode] = useState<string>("foot-walking");
 
   useEffect(() => {
     if (navigator.geolocation) {
@@ -115,7 +118,7 @@ const MapRoutingPage = () => {
       })
       .then(data => setTargetPointBays(data))
       .catch(console.error);
-  }, [targetPoint]);
+  }, [targetPoint, updateCounter]);
 
   const getRoute = async () => {
     // ORS uses "longitude,latitude"
@@ -123,7 +126,7 @@ const MapRoutingPage = () => {
     const endStr = `${targetPoint.longitude},${targetPoint.latitude}`;
 
     try {
-      const response = await fetch(`${API_BASE}/api/get-route?start=${startStr}&end=${endStr}`);
+      const response = await fetch(`${API_BASE}/api/get-route?start=${startStr}&end=${endStr}&mode=${mode}`);
       if (response.ok) {
         const data = await response.json();
         setRouteData(data);
@@ -147,6 +150,21 @@ const MapRoutingPage = () => {
     }
   };
 
+  const makeBooking = (b_customer_id : number, bay_id : number) => {
+    const requestOptions = {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ customer_id : b_customer_id, charging_bay_id: bay_id, booking_length: 60 })
+    };
+
+    fetch(`${API_BASE}/api/booking`, requestOptions)
+      .then(response => response.json())
+      .then(_ => {
+        setUpdateCounter(updateCounter + 1);
+      })
+      .catch(console.error);
+  }
+
   const navLinkStyle: React.CSSProperties = {
     float: "right",
     marginRight: "10px",
@@ -164,35 +182,100 @@ const MapRoutingPage = () => {
 
   return (
     <div style={{ height: "100dvh", display: "flex", flexDirection: "column" }}>
-      <div style={{ padding: "10px", flexShrink: 0, position: "relative" }}>
-        <NavLink
-          style={navLinkStyle}
-          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "#1c5fcc"}
-          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "#348ceb"}
-          to="/profile"
-        >
-          My Profile
-        </NavLink>
-        <input
-          placeholder="Search location"
-          style={{ padding: "8px", marginRight: "10px" }}
-        />
+      <style>{`
+        .mode-container {
+          display: inline-flex;
+          gap: 5px;
+          margin: 10px;
+          vertical-align: middle;
+          flex-wrap: wrap;
+        }
+        @media (max-width: 600px) {
+          .mode-label {
+            display: none !important;
+          }
+          .mode-container {
+            margin: 5px 0;
+          }
+        }
+      `}</style>
+      <div style={{ padding: "10px", flexShrink: 0, position: "relative", display: "flex", flexDirection: "column", gap: "10px" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "10px" }}>
+          <input
+            placeholder="Search location"
+            style={{ padding: "8px", width: "100%", maxWidth: "300px", boxSizing: "border-box", margin: 0 }}
+          />
+          <NavLink
+            style={{ ...navLinkStyle, margin: 0, float: "none" }}
+            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "#1c5fcc"}
+            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "#348ceb"}
+            to="/profile"
+          >
+            My Profile
+          </NavLink>
+        </div>
 
-        <button onClick={() => setShowFilters(!showFilters)}>Filters</button>
+        <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "10px" }}>
+          <button style={{ margin: 0 }} onClick={() => setShowFilters(!showFilters)}>Filters</button>
+          
+          <NavLink
+            to="/report"
+            style={{ ...navLinkStyle, margin: 0, float: "none" }}
+            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "#1c5fcc"}
+            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "#348ceb"}
+          >
+            Report a problem
+          </NavLink>
 
-        <button onClick={getRoute} style={{ padding: "10px", fontSize: "16px" }}>Calculate route</button>
+          <div style={{ marginLeft: "auto", display: "flex", gap: "10px", flexWrap: "wrap", alignItems: "center" }}>
+            <div className="mode-container" style={{ margin: 0, marginLeft: "auto" }}>
+              {[
+                { id: "foot-walking", label: "Walk", icon: <WalkIcon /> },
+                { id: "cycling-regular", label: "Cycle", icon: <CycleIcon /> },
+                { id: "driving-car", label: "Drive", icon: <DriveIcon /> },
+                { id: "wheelchair", label: "Wheelchair", icon: <WheelchairIcon /> }
+              ].map((m) => (
+                <button
+                  key={m.id}
+                  onClick={() => setMode(m.id)}
+                  style={{
+                    margin: 0,
+                    padding: "8px 12px",
+                    backgroundColor: mode === m.id ? "#348ceb" : "#f3f4f6",
+                    color: mode === m.id ? "white" : "black",
+                    border: "1px solid #ccc",
+                    borderRadius: "4px",
+                    cursor: "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "4px",
+                    fontSize: "14px"
+                  }}
+                  title={m.label}
+                  aria-pressed={mode === m.id}
+                >
+                  {m.icon}
+                  <span className="mode-label">{m.label}</span>
+                </button>
+              ))}
+            </div>
+
+            <button onClick={getRoute} style={{ margin: 0, padding: "8px 12px", fontSize: "14px" }}>Calculate route</button>
+          </div>
+        </div>
+
         {routeSummary && (
-          <div style={{ marginTop: "10px", fontSize: "16px" }}>
-            <p>Distance: {routeSummary.distance} km</p>
-            <p>Duration: {routeSummary.duration} minutes</p>
+          <div style={{ fontSize: "14px", display: "flex", gap: "15px", flexWrap: "wrap", justifyContent: "flex-end" }}>
+            <p style={{ margin: 0 }}><strong>Distance:</strong> {routeSummary.distance} km</p>
+            <p style={{ margin: 0 }}><strong>Duration:</strong> {routeSummary.duration} mins</p>
           </div>
         )}
 
         {showFilters && (
           <div style={{
             position: "absolute",
-            top: "88px",
-            left: "100px",
+            top: "100%",
+            left: "10px",
             height: "auto",
             maxHeight: "80vh",
             background: "white",
@@ -302,7 +385,11 @@ const MapRoutingPage = () => {
                           <td>{bay.status}</td>
                           <td>
                             {bay.status === "available" ?
-                              <button style={{
+                              <button 
+                              onClick = {() => {
+                                makeBooking(-1, bay.charging_bay_id);
+                              }}
+                              style={{
                                 backgroundColor: "limegreen"
                               }}>Book</button> :
                               <button style={{

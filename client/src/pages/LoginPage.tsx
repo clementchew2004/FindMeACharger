@@ -2,6 +2,8 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { authClient } from "../lib/auth-client";
 
+const API_BASE: string = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
+
 const ERROR_MESSAGES: Record<string, string> = {
   INVALID_CREDENTIALS: "Incorrect email or password.",
   INVALID_EMAIL_OR_PASSWORD: "Incorrect email or password.",
@@ -29,8 +31,22 @@ export default function LoginPage() {
         setLoading(true);
         setErrorMessage(null);
       },
-      onSuccess: () => {
-        navigate("/routing");
+      onSuccess: async () => {
+        try {
+          const res = await fetch(`${API_BASE}/api/me`, {
+            credentials: "include"
+          });
+
+          const data = await res.json();
+
+          if (data.isOperator) {
+            navigate("/manage");
+          } else {
+            navigate("/routing");
+          }
+        } catch {
+          navigate("/routing");
+        }
       },
       onError: (ctx: any) => {
         const code = ctx.error.code;
@@ -65,11 +81,28 @@ export default function LoginPage() {
           <p style={{ color: "red", textAlign: "center" }}>{errorMessage}</p>
         )}
 
-        <div style={{ display: "flex", width: '100%' }}>
-          <button type="button" onClick={() => navigate("/routing")} disabled={loading} style={{ width: '100%' }}>
-            Continue without login (for development)
+        <div style={{ width: "300px", marginTop: "10px" }}>
+          <button
+            type="button"
+            onClick={() => navigate("/routing")}
+            disabled={loading}
+            style={{ width: "100%" }}
+          >
+            Go to map page without login (for development)
           </button>
         </div>
+
+        <div style={{ width: "300px", marginTop: "10px" }}>
+          <button
+            type="button"
+            onClick={() => navigate("/manage")}
+            disabled={loading}
+            style={{ width: "100%" }}
+          >
+            Go to operator manage points page without login (for development)
+          </button>
+        </div>
+
       </form>
 
       <p>

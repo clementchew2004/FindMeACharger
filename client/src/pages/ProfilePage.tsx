@@ -21,11 +21,6 @@ export default function ProfilePage() {
 
   const fetchProfile = async () => {
     try {
-      const { data: session } = await authClient.getSession();
-      if (!session) {
-        navigate("/");
-        return;
-      }
       const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || "http://localhost:8000"}/api/user/profile`, {
         credentials: "include"
       });
@@ -51,7 +46,7 @@ export default function ProfilePage() {
 
     const formData = new FormData(event.currentTarget);
     const name = formData.get("name") as string;
-    const public_name = formData.get("public_name") as string;
+    const public_name = (formData.get("public_name") as string) || null;
 
     try {
       const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || "http://localhost:8000"}/api/user/profile`, {
@@ -70,6 +65,7 @@ export default function ProfilePage() {
 
       const updatedData = await response.json();
       setProfile(updatedData);
+
       setStatus({ message: "Profile updated successfully!", type: "success" });
     } catch (err: any) {
       setStatus({ message: err.message, type: "error" });
