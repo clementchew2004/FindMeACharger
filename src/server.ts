@@ -29,7 +29,7 @@ app.use(express.json());
 
 // require login for all routes under /api
 // currently this is conditionally bypassed for development, see ./middleware/auth.ts for details
-//app.use("/api", authMiddleware); 
+app.use("/api", authMiddleware); 
 
 app.use("/api", chargingPointsRoutes);
 app.use("/api", mapRoutes);
