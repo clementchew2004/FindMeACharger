@@ -699,7 +699,26 @@ export const filterChargingPoints = async (req: Request, res: Response) => {
         res.status(500).json({ error: "Failed to filter charging points" });
     }
 };
-    
+
+export const getBayTypes = async (req: Request, res: Response) => { 
+    try {
+        const result = await pool.query(`
+            SELECT 
+                bay_type_id,
+                bay_type_name
+            FROM bay_types 
+            ORDER BY bay_type_id;
+            `
+        );
+
+        res.status(200).json(result.rows);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({error: "Failed to fetch bay types "});
+    }
+
+}
+
 
 
 

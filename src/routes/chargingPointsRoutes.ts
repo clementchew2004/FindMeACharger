@@ -2,13 +2,14 @@ import { Router } from "express";
 import { getChargingPointStatus, getChargingPointsWithinDistance, getChargingPointAccessibility} from "../controller/chargingPointController";
 import { getAllChargingPoints, createChargingPoint, updateChargingPoint, deleteChargingPoint } from "../controller/chargingPointController";
 import { getChargingBaysByChargingPoint, createChargingBay, updateChargingBay } from "../controller/chargingPointController";
-import { filterChargingPoints } from "../controller/chargingPointController";
+import { filterChargingPoints, getBayTypes } from "../controller/chargingPointController";
 import { authMiddleware } from "../middleware/auth";
 import { requireModOrOp } from "../middleware/rbac";
 
 const router = Router();
 
 // Public routes
+router.get("/bay-types", getBayTypes)
 router.get("/charging-points/:id/status", getChargingPointStatus)
 router.get("/charging-points/:id/accessibility", getChargingPointAccessibility)
 router.get("/charging-points/nearby", getChargingPointsWithinDistance)
