@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { NavLink } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
@@ -40,7 +40,6 @@ export function ReportForm({ className, ...props }: ReportFormProps) {
     "Other",
   ];
   const [chargingPointId, setChargingPointId] = useState("");
-  const [issueTypes, setIssueTypes] = useState<string[]>([]);
   const [issueType, setIssueType] = useState("");
   const [description, setDescription] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -48,24 +47,6 @@ export function ReportForm({ className, ...props }: ReportFormProps) {
     type: "idle" | "success" | "error";
     message: string;
   }>({ type: "idle", message: "" });
-
-  useEffect(() => {
-    fetch(`${API_BASE}/api/report-types`)
-      .then((res) => {
-        if (!res.ok) throw new Error(`HTTP error status ${res.status}`);
-        return res.json();
-      })
-      .then((data) => {
-        if (Array.isArray(data)) {
-          setIssueTypes(data);
-        } else if (Array.isArray(data.reportTypes)) {
-          setIssueTypes(data.reportTypes);
-        } else {
-          setIssueTypes([]);
-        }
-      })
-      .catch((_) => { });
-  }, []);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -161,14 +142,11 @@ export function ReportForm({ className, ...props }: ReportFormProps) {
                   className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
                 >
                   <option value="">{t("report.issueTypeSelect")}</option>
-                  {(issueTypes.length === 0 ? ISSUE_TYPES : issueTypes).map((type, index) => {
-                    const value = issueTypes.length === 0 ? ISSUE_TYPES_EN[index] : type;
-                    return (
-                      <option key={typeof type === 'string' ? type : index} value={value}>
-                        {type}
-                      </option>
-                    );
-                  })}
+                  {ISSUE_TYPES.map((type, index) => (
+                    <option key={index} value={ISSUE_TYPES_EN[index]}>
+                      {type}
+                    </option>
+                  ))}
                 </select>
               </Field>
               <Field>
