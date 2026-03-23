@@ -83,7 +83,7 @@ export function ReportForm({ className, ...props }: ReportFormProps) {
         }),
       });
 
-      if (!response.ok) throw new Error("Failed to submit report");
+      if (!response.ok) throw new Error(t("report.error"));
 
       setStatus({
         type: "success",
@@ -161,8 +161,8 @@ export function ReportForm({ className, ...props }: ReportFormProps) {
                   className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
                 >
                   <option value="">{t("report.issueTypeSelect")}</option>
-                  {(issueTypes.length !== ISSUE_TYPES.length ? issueTypes : ISSUE_TYPES).map((type, index) => {
-                    const value = issueTypes.length !== ISSUE_TYPES.length ? type : ISSUE_TYPES_EN[index];
+                  {(issueTypes.length === 0 ? ISSUE_TYPES : issueTypes).map((type, index) => {
+                    const value = issueTypes.length === 0 ? ISSUE_TYPES_EN[index] : type;
                     return (
                       <option key={typeof type === 'string' ? type : index} value={value}>
                         {type}
