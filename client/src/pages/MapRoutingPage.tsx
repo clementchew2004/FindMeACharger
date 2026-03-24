@@ -154,11 +154,11 @@ const MapRoutingPage = () => {
     }
   };
 
-  const makeBooking = (b_customer_id: number, bay_id: number) => {
+  const makeBooking = (bay_id: number) => {
     const requestOptions = {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ customer_id: b_customer_id, charging_bay_id: bay_id, booking_length: 60 })
+      body: JSON.stringify({ charging_bay_id: bay_id, booking_length: 60 })
     };
 
     fetch(`${API_BASE}/api/booking`, requestOptions)
@@ -403,7 +403,7 @@ const MapRoutingPage = () => {
                             {bay.status === "available" ?
                               <button
                                 onClick={() => {
-                                  makeBooking(-1, bay.charging_bay_id);
+                                  makeBooking(bay.charging_bay_id);
                                 }}
                                 style={{
                                   backgroundColor: "limegreen"
