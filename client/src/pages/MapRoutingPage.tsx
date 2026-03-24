@@ -86,6 +86,7 @@ const MapRoutingPage = () => {
   const [updateCounter, setUpdateCounter] = useState<number>(0);
   const geoJSONReference = useRef<any>(null);
   const [mode, setMode] = useState<string>("foot-walking");
+  const [emergencyMode, setEmergencyMode] = useState(false);
 
   const [freeOnly, setFreeOnly] = useState(false);
   const [paidOnly, setPaidOnly] = useState(false);
@@ -285,6 +286,7 @@ const MapRoutingPage = () => {
                 setTargetPoint(point);
                 setShowMarkerInfo(true);
               }}
+              onEmergencyToggle={(active) => setEmergencyMode(active)}
             />
 
             <NavLink
@@ -554,6 +556,7 @@ const MapRoutingPage = () => {
           {chargingPoints &&
             chargingPoints.length > 0 &&
             chargingPoints
+              .filter((point: any) => !emergencyMode || point === chargingPoints[0])
               .filter((point: any) => !targetPoint || point.charging_point_id !== targetPoint.charging_point_id)
               .map((point: any) => (
                 <Marker
