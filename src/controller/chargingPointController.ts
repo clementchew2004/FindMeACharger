@@ -133,7 +133,7 @@ export const getChargingPointsWithinDistance = async (req: Request, res: Respons
             FROM 
                 charging_points point
             WHERE 
-                point.is_operational = trues
+                point.is_operational AND
                 (
                     6371 * acos(
                         cos(radians($1)) * cos(radians(point.latitude)) * cos(radians(point.longitude) - radians($2)) +
