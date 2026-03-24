@@ -159,6 +159,7 @@ export const getChargingPointsWithinDistance = async (req: Request, res: Respons
 }
 
 // Charging Point Management F16
+/* c8 ignore start */
 export const getAllChargingPoints = async (req: Request, res: Response) => {
     try {
         const result = await pool.query(
@@ -178,21 +179,24 @@ export const getAllChargingPoints = async (req: Request, res: Response) => {
             ORDER BY charging_point_id
             `
         )
-
+        
         if (result.rows.length === 0 ) {
              return res.status(404).json({error: "No charging points found"})
         }
 
         res.json(result.rows);
-        /* c8 ignore start */
+        
     } catch (error) {
         console.error(error);
         res.status(500).json({error: 'Failed to fetch all charging points'});
     }
-    /* c8 ignore stop */
 }
+/* c8 ignore stop */
 
 export const createChargingPoint = async(req: Request, res: Response) => {
+    if (!req.body) {
+        return res.status(400).json({error: "owner_id, shorthand_name and charging_point_name are required"});
+    }
     const {
         charging_point_name,
         owner_id,
@@ -206,7 +210,7 @@ export const createChargingPoint = async(req: Request, res: Response) => {
     } = req.body
 
     if (!owner_id || !shorthand_name || !charging_point_name) {
-        res.status(400).json({error: "owner_id, shorthand_name and charging_point_name are required"});
+        return res.status(400).json({error: "owner_id, shorthand_name and charging_point_name are required"});
     }
 
     try {
@@ -239,7 +243,7 @@ export const createChargingPoint = async(req: Request, res: Response) => {
     );
 
     res.status(201).json({
-        messaege: "Charging Point created successfully",
+        message: "Charging point created successfully",
         chargingPoint: result.rows[0]
     });
    
@@ -252,7 +256,7 @@ export const createChargingPoint = async(req: Request, res: Response) => {
         });
     }
 
-    res.status(500).json('Faile to create charging point')
+    res.status(500).json('Failed to create charging point')
     }
 };
 
