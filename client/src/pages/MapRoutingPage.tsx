@@ -208,7 +208,7 @@ const MapRoutingPage = () => {
     const requestOptions = {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ customer_id: b_customer_id, charging_bay_id: bay_id, booking_length: 60 })
+      body: JSON.stringify({ charging_bay_id: bay_id, booking_length: 60 })
     };
 
     fetch(`${API_BASE}/api/booking`, requestOptions)

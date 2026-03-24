@@ -40,6 +40,13 @@
 1. `cd client`
 2. `npm test`
 
+#### Login Details (Operator)
+1. email: operator@test.com
+2. password: password1234
+#### Login Details (Customer)
+1. email: customer@test.com
+2. password: password1234
+
 ### Running a production build locally
 Environment
 1. In backend [.env](.env), change `NODE_ENV` to `production`

@@ -136,6 +136,7 @@ function getFileLists() {
         resolveFromRoot('database', 'sample_data', 'populate_operator_supaspeed.sql'),
         resolveFromRoot('database', 'sample_data', 'populate_charging_points_2.sql'),
         resolveFromRoot('database', 'sample_data', 'populate_charging_points_2_dynamic.sql'),
+        resolveFromRoot('database', 'sample_data', 'populate_test_operator.sql'),
       ],
     },
   };
