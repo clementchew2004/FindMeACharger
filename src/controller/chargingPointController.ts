@@ -510,7 +510,8 @@ export const filterChargingPoints = async (req: Request, res: Response) => {
         availability,
         wheelchair_accessible,
         blocked_socket,
-        bay_type
+        bay_type,
+        cost
     } = req.query;
 
     const hasAnyDistanceParam = longitude !== undefined || latitude !== undefined || maxDistance !==undefined;
@@ -555,6 +556,10 @@ export const filterChargingPoints = async (req: Request, res: Response) => {
         return res.status(400).json({
             error: "blocked_socket must be 'true' or 'false' "
         });
+    }
+
+     if (cost !== undefined && cost !== "free" && cost !== "paid") {
+        return res.status(400).json({error: "cost must be either 'free' or 'paid'"});
     }
 
     let parsedBayTypeId: number | null = null;
@@ -641,6 +646,16 @@ export const filterChargingPoints = async (req: Request, res: Response) => {
         whereConditions.push(`bt.bay_type_name = $${queryParams.length}`);
     }
 
+    if(cost !== undefined) {
+        if(cost === "free") {
+            whereConditions.push(`COALESCE(point.cost_per_kwh, 0) = 0`);
+        }
+
+        if(cost === "paid") {
+            whereConditions.push(`COALESCE(point.cost_per_kwh, 0) >0 `);
+        }
+    }
+
     const whereClause =
         whereConditions.length > 0
             ? `WHERE ${whereConditions.join(" AND ")}`
@@ -659,6 +674,7 @@ export const filterChargingPoints = async (req: Request, res: Response) => {
                 point.charging_point_location,
                 point.latitude,
                 point.longitude,
+                point.cost_per_kwh,
                 ${distanceSelect},
                 cb.charging_bay_id,
                 cb.charging_bay_number,
@@ -696,6 +712,7 @@ export const filterChargingPoints = async (req: Request, res: Response) => {
                     charging_point_location: row.charging_point_location,
                     latitude: row.latitude,
                     longitude: row.longitude,
+                    cost_per_kwh: row.cost_per_kwh,
                     distance: row.distance !== null ? Number(row.distance) : null,
                     bays: []
                 };
