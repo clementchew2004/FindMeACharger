@@ -60,9 +60,9 @@ t.test('test chargingPointAccessibility', async t => {
             "charging_bay_number": 1,
             "bay_type_name": 'USB-C',
             "is_operational": true,
-            "wheelchair_accessible": false,
+            "wheelchair_accessible": true,
             "blocked_socket": false,
-            "accessibility_notes": null
+            "accessibility_notes": "Step-free access"
         },
         {
             "charging_bay_number": 2

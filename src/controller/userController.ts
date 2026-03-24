@@ -61,3 +61,25 @@ export const updateUserProfile = async (req: Request, res: Response) => {
     res.status(500).json({ error: "Failed to update profile" });
   }
 };
+
+export const getCurrentUser = async (req: Request, res: Response) => {
+  try {
+    const userId = req.user?.id;
+
+    if (!userId) {
+      return res.status(401).json({ error: "Not authenticated" });
+    }
+
+    const result = await pool.query(
+      `SELECT * FROM operators WHERE user_id = $1`,
+      [userId]
+    );
+
+    res.json({
+      isOperator: result.rows.length > 0
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Server error" });
+  }
+};

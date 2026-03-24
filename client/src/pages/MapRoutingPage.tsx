@@ -1,9 +1,12 @@
 import L, { LatLng } from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { GeoJSON, MapContainer, Marker, TileLayer, useMap } from "react-leaflet";
 import { NavLink } from "react-router-dom";
 import { CycleIcon, DriveIcon, WalkIcon, WheelchairIcon } from "../components/ModeIcons";
+import EmergencyModeButton from "../components/EmergencyModeButton";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
 
 const API_BASE: string = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
 const uob = new LatLng(52.449832, -1.930633);
@@ -61,6 +64,7 @@ const FitBounds = ({ data }: { data: any; }) => {
 };
 
 const MapRoutingPage = () => {
+  const { t } = useTranslation();
   const [routeData, setRouteData] = useState<any>(null);
   const [routeSummary, setRouteSummary] = useState<{ distance: string, duration: number; } | null>(null);
   const [showFilters, setShowFilters] = useState(false);
@@ -150,20 +154,20 @@ const MapRoutingPage = () => {
     }
   };
 
-  const makeBooking = (b_customer_id : number, bay_id : number) => {
+  const makeBooking = (b_customer_id: number, bay_id: number) => {
     const requestOptions = {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ customer_id : b_customer_id, charging_bay_id: bay_id, booking_length: 60 })
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ customer_id: b_customer_id, charging_bay_id: bay_id, booking_length: 60 })
     };
 
     fetch(`${API_BASE}/api/booking`, requestOptions)
       .then(response => response.json())
-      .then(_ => {
+      .then(() => {
         setUpdateCounter(updateCounter + 1);
       })
       .catch(console.error);
-  }
+  };
 
   const navLinkStyle: React.CSSProperties = {
     float: "right",
@@ -202,38 +206,50 @@ const MapRoutingPage = () => {
       <div style={{ padding: "10px", flexShrink: 0, position: "relative", display: "flex", flexDirection: "column", gap: "10px" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "10px" }}>
           <input
-            placeholder="Search location"
+            placeholder={t("map.searchPlaceholder")}
             style={{ padding: "8px", width: "100%", maxWidth: "300px", boxSizing: "border-box", margin: 0 }}
           />
-          <NavLink
-            style={{ ...navLinkStyle, margin: 0, float: "none" }}
-            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "#1c5fcc"}
-            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "#348ceb"}
-            to="/profile"
-          >
-            My Profile
-          </NavLink>
+          <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+            <LanguageSwitcher />
+            <NavLink
+              style={{ ...navLinkStyle, margin: 0, float: "none" }}
+              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "#1c5fcc"}
+              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "#348ceb"}
+              to="/profile"
+            >
+              {t("map.myProfile")}
+            </NavLink>
+          </div>
         </div>
 
-        <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "10px" }}>
-          <button style={{ margin: 0 }} onClick={() => setShowFilters(!showFilters)}>Filters</button>
-          
-          <NavLink
-            to="/report"
-            style={{ ...navLinkStyle, margin: 0, float: "none" }}
-            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "#1c5fcc"}
-            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "#348ceb"}
-          >
-            Report a problem
-          </NavLink>
+        <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "10px", justifyContent: "space-between" }}>
+          <div style={{ display: "flex", gap: "10px", flexWrap: "wrap", alignItems: "center" }}>
+            <button style={{ margin: 0 }} onClick={() => setShowFilters(!showFilters)}>{t("map.filters")}</button>
+            <EmergencyModeButton
+              chargingPoints={chargingPoints}
+              userLocation={location ? { lat: location.position.lat, lng: location.position.lng } : null}
+              onPointSelected={(point) => {
+                setTargetPoint(point);
+                setShowMarkerInfo(true);
+              }}
+            />
+            <NavLink
+              to="/report"
+              style={{ ...navLinkStyle, margin: 0, float: "none" }}
+              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "#1c5fcc"}
+              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "#348ceb"}
+            >
+              {t("map.reportProblem")}
+            </NavLink>
+          </div>
 
-          <div style={{ marginLeft: "auto", display: "flex", gap: "10px", flexWrap: "wrap", alignItems: "center" }}>
+          <div style={{ display: "flex", gap: "10px", flexWrap: "wrap", alignItems: "center" }}>
             <div className="mode-container" style={{ margin: 0, marginLeft: "auto" }}>
               {[
-                { id: "foot-walking", label: "Walk", icon: <WalkIcon /> },
-                { id: "cycling-regular", label: "Cycle", icon: <CycleIcon /> },
-                { id: "driving-car", label: "Drive", icon: <DriveIcon /> },
-                { id: "wheelchair", label: "Wheelchair", icon: <WheelchairIcon /> }
+                { id: "foot-walking", label: t("map.mode.walk"), icon: <WalkIcon /> },
+                { id: "cycling-regular", label: t("map.mode.cycle"), icon: <CycleIcon /> },
+                { id: "driving-car", label: t("map.mode.drive"), icon: <DriveIcon /> },
+                { id: "wheelchair", label: t("map.mode.wheelchair"), icon: <WheelchairIcon /> }
               ].map((m) => (
                 <button
                   key={m.id}
@@ -260,14 +276,14 @@ const MapRoutingPage = () => {
               ))}
             </div>
 
-            <button onClick={getRoute} style={{ margin: 0, padding: "8px 12px", fontSize: "14px" }}>Calculate route</button>
+            <button onClick={getRoute} style={{ margin: 0, padding: "8px 12px", fontSize: "14px" }}>{t("map.calculateRoute")}</button>
           </div>
         </div>
 
         {routeSummary && (
           <div style={{ fontSize: "14px", display: "flex", gap: "15px", flexWrap: "wrap", justifyContent: "flex-end" }}>
-            <p style={{ margin: 0 }}><strong>Distance:</strong> {routeSummary.distance} km</p>
-            <p style={{ margin: 0 }}><strong>Duration:</strong> {routeSummary.duration} mins</p>
+            <p style={{ margin: 0 }}><strong>{t("map.distance")}:</strong> {routeSummary.distance} km</p>
+            <p style={{ margin: 0 }}><strong>{t("map.duration")}:</strong> {routeSummary.duration} mins</p>
           </div>
         )}
 
@@ -289,12 +305,12 @@ const MapRoutingPage = () => {
             textAlign: "left"
           }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
-              <h2 style={{ margin: 0 }}>Filters</h2>
-              <button onClick={() => setShowFilters(false)}>Apply Filters</button>
+              <h2 style={{ margin: 0 }}>{t("map.filters")}</h2>
+              <button onClick={() => setShowFilters(false)}>{t("map.applyFilters")}</button>
             </div>
 
             <div style={{ marginBottom: "20px" }}>
-              <label style={{ fontWeight: "bold" }}>Max Distance (km): {maxDistance}</label>
+              <label style={{ fontWeight: "bold" }}>{t("map.maxDistance")}: {maxDistance}</label>
               <input
                 type="range"
                 min="1"
@@ -305,33 +321,33 @@ const MapRoutingPage = () => {
             </div>
 
             <div style={{ marginBottom: "10px" }}>
-              <p style={{ fontWeight: "bold", marginBottom: "5px" }}>Cost:</p>
+              <p style={{ fontWeight: "bold", marginBottom: "5px" }}>{t("map.cost")}:</p>
               <label style={{ display: "block", marginBottom: "4px" }}>
                 <input type="checkbox" style={{ marginRight: "8px", marginTop: "20px" }} />
-                <span style={{ position: "relative", top: "-25px" }}>Free</span>
+                <span style={{ position: "relative", top: "-25px" }}>{t("map.free")}</span>
               </label>
               <label style={{ display: "block", marginBottom: "4px" }}>
                 <input type="checkbox" style={{ marginRight: "8px", marginTop: "2px" }} />
-                <span style={{ position: "relative", top: "-25px" }}>Paid</span>
+                <span style={{ position: "relative", top: "-25px" }}>{t("map.paid")}</span>
               </label>
             </div>
 
             <div style={{ marginBottom: "10px" }}>
               <label style={{ display: "block", fontWeight: "bold" }}>
                 <input type="checkbox" style={{ marginRight: "8px", marginTop: "2px" }} />
-                <span style={{ position: "relative", top: "-25px" }}>Available only</span>
+                <span style={{ position: "relative", top: "-25px" }}>{t("map.availableOnly")}</span>
               </label>
             </div>
 
             <div>
-              <p style={{ fontWeight: "bold", marginTop: "5px" }}>Accessibility:</p>
+              <p style={{ fontWeight: "bold", marginTop: "5px" }}>{t("map.accessibility")}:</p>
               <label style={{ display: "block", marginBottom: "4px" }}>
                 <input type="checkbox" style={{ marginRight: "8px", marginTop: "10px" }} />
-                <span style={{ position: "relative", top: "-25px" }}>Wheelchair access</span>
+                <span style={{ position: "relative", top: "-25px" }}>{t("map.wheelchairAccess")}</span>
               </label>
               <label style={{ display: "block", marginBottom: "4px" }}>
                 <input type="checkbox" style={{ marginRight: "8px", marginTop: "10px" }} />
-                <span style={{ position: "relative", top: "-25px" }}>No blocked sockets</span>
+                <span style={{ position: "relative", top: "-25px" }}>{t("map.noBlockedSockets")}</span>
               </label>
             </div>
           </div>
@@ -362,40 +378,40 @@ const MapRoutingPage = () => {
               </div>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "10px" }}>
                 <div>
-                  <p><strong>Availability:</strong> {targetPointBays ? (targetPointBays.overallStatus) : "loading.."}</p>
-                  <p><strong>Cost:</strong> (Free or price)</p>
-                  <p><strong>Wheelchair access:</strong> (Yes or No)</p>
-                  <p><strong>Blocked sockets:</strong> (Yes or No)</p>
-                  <p><strong>User Reports:</strong> (Reports)</p>
+                  <p><strong>{t("map.info.availability")}:</strong> {targetPointBays ? (targetPointBays.overallStatus) : t("map.info.loading")}</p>
+                  <p><strong>{t("map.info.cost")}:</strong> (Free or price)</p>
+                  <p><strong>{t("map.wheelchairAccess")}:</strong> (Yes or No)</p>
+                  <p><strong>{t("map.noBlockedSockets")}:</strong> (Yes or No)</p>
+                  <p><strong>{t("map.info.userReports")}:</strong> (Reports)</p>
                 </div>
                 {targetPointBays && (
                   <table>
                     <thead>
                       <tr>
-                        <td><strong>Bay</strong></td>
-                        <td><strong>Charger Type</strong></td>
-                        <td><strong>Availability</strong></td>
+                        <td><strong>{t("map.info.bay")}</strong></td>
+                        <td><strong>{t("map.info.chargerType")}</strong></td>
+                        <td><strong>{t("map.info.availability")}</strong></td>
                       </tr>
                     </thead>
                     <tbody>
                       {targetPointBays.bays.map((bay: any) => (
                         <tr key={bay.charging_bay_id}>
-                          <td>Bay {bay.charging_bay_number}</td>
+                          <td>{t("map.info.bay")} {bay.charging_bay_number}</td>
                           <td>{bay.bay_type_name}</td>
                           <td>{bay.status}</td>
                           <td>
                             {bay.status === "available" ?
-                              <button 
-                              onClick = {() => {
-                                makeBooking(-1, bay.charging_bay_id);
-                              }}
-                              style={{
-                                backgroundColor: "limegreen"
-                              }}>Book</button> :
+                              <button
+                                onClick={() => {
+                                  makeBooking(-1, bay.charging_bay_id);
+                                }}
+                                style={{
+                                  backgroundColor: "limegreen"
+                                }}>{t("map.info.book")}</button> :
                               <button style={{
                                 backgroundColor: "red"
                               }}
-                                disabled={true}>Busy</button>
+                                disabled={true}>{t("map.info.busy")}</button>
                             }
                           </td>
                         </tr>
