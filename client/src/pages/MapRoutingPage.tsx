@@ -203,7 +203,7 @@ const MapRoutingPage = () => {
     }
   };
 
-  const makeBooking = (b_customer_id: number, bay_id: number) => {
+  const makeBooking = (bay_id: number) => {
     const requestOptions = {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -511,7 +511,7 @@ const MapRoutingPage = () => {
                             {bay.status === "available" ? (
                               <button
                                 onClick={() => {
-                                  makeBooking(-1, bay.charging_bay_id);
+                                  makeBooking(bay.charging_bay_id);
                                 }}
                                 style={{ backgroundColor: "limegreen" }}
                               >

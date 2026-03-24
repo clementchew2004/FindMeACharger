@@ -12,10 +12,28 @@ export const makeBooking = async (req: Request, res: Response) => {
             booking length is in minutes
         */
         const {
-            customer_id,
             charging_bay_id,
             booking_length
         } = req.body;
+
+        const customer = await pool.query(
+            `
+            SELECT customer.customer_id
+            FROM customers customer
+            WHERE customer.user_id = $1
+            `,
+            [
+                req.user?.id
+            ]
+        );
+        if (!customer || customer.rowCount == 0) {
+            return res.status(400).json({
+                error: "Missing either customer id or bay id"
+            });
+        }
+        const customer_id = customer?.rows[0].customer_id;
+
+
         if (!customer_id || !charging_bay_id) {
             return res.status(400).json({
                 error: "Missing either customer id or bay id"
