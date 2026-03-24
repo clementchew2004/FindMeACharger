@@ -119,6 +119,8 @@ function getFileLists() {
         resolveFromRoot('database', 'schema', 'modifications', 'modify_auth_tables_1.sql'),
         resolveFromRoot('database', 'schema', 'modifications', 'modify_charging_bays_1.sql'),
         resolveFromRoot('database', 'schema', 'modifications', 'modify_charging_points_2.sql'),
+        resolveFromRoot('database', 'schema', 'modifications', 'modify_charging_points_3.sql'),
+        resolveFromRoot('database', 'schema', 'modifications', 'modify_charging_points_4.sql'),
       ],
     },
 
