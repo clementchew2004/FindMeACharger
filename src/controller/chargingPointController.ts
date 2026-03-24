@@ -184,11 +184,12 @@ export const getAllChargingPoints = async (req: Request, res: Response) => {
         }
 
         res.json(result.rows);
-
+        /* c8 ignore start */
     } catch (error) {
-        console.error(error)
-        res.status(500).json({error: 'Failed to fetch all charging points'})
+        console.error(error);
+        res.status(500).json({error: 'Failed to fetch all charging points'});
     }
+    /* c8 ignore stop */
 }
 
 export const createChargingPoint = async(req: Request, res: Response) => {

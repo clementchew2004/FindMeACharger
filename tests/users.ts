@@ -1,6 +1,6 @@
 import t from "tap"
 import { Request, Response } from "express";
-import {getUserProfile, updateUserProfile} from "../src/controller/userController";
+import {getUserProfile, updateUserProfile, getCurrentUser} from "../src/controller/userController";
 import {pool} from "../src/lib/db";
 
 t.test('test users', async t => {
@@ -178,6 +178,114 @@ t.test('test users', async t => {
     
 
     
+});
+
+t.test('test operator user', async t => {
+    var user = null;
+    var operator = null;
+    try {
+        user = await pool.query(
+            `INSERT INTO 
+                "user" (name, email)
+            VALUES
+                ($1, $2)
+            RETURNING "user".id;
+            `,
+            ["Test Operator", "operator@test.com"]
+        );
+        if (!user) throw new Error("couldn't make user");
+
+        const request = {
+            user: {
+                //id: user.rows[0].id
+            }
+        } as unknown as Request;
+
+        var respStatus = 200;
+        var output : any = null;
+        const response = {
+            status: (s : any) => {
+                respStatus = s;
+                return response;
+            },
+            json: (b : any) => {
+                output = b;
+                return response;
+            }
+        } as unknown as Response;
+
+        await getCurrentUser(request, response);
+        t.equal(respStatus, 401);
+        t.match(output, {
+            error: "Not authenticated"
+        });
+
+        (request as any).user.id = "cheese";
+        await getCurrentUser(request, response);
+        t.equal(respStatus, 500);
+        t.match(output, {
+            error: "Server error"
+        });
+
+        (request as any).user.id = user.rows[0].id;
+        respStatus = 200;
+        await getCurrentUser(request, response);
+        t.equal(respStatus, 200);
+        t.match(output, {
+            isOperator: false
+        });
+
+
+        operator = await pool.query(
+            `
+            INSERT INTO
+                operators (user_id, organisation_id)
+            VALUES
+                ($1, (SELECT organisation_id FROM organisations WHERE organisation_name = $2))
+            RETURNING
+                operators.operator_id;
+            `,
+            [user.rows[0].id, 'Supaspeed123 Ltd.']
+        );
+        if (!operator) throw new Error("couldn't make operator");
+        
+        (request as any).user.id = user.rows[0].id;
+        respStatus = 200;
+        await getCurrentUser(request, response);
+        t.equal(respStatus, 200);
+        t.match(output, {
+            isOperator: true
+        });
+    }
+    catch (error) {
+        console.error(error);
+        t.fail("test operator user caught an error");
+    }
+    finally {
+        if (user) {
+            if (operator) {
+                await pool.query(
+                    `
+                    DELETE FROM
+                        operators
+                    WHERE
+                        operators.user_id = $1
+                    `,
+                    [user.rows[0].id]
+                );
+            }
+
+            await pool.query(
+                `
+                DELETE FROM 
+                    "user"
+                WHERE
+                    "user".name = $1;
+                `,
+                ["Test Operator"]
+            );
+        }
+    }
 });
 
 
