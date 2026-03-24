@@ -60,7 +60,7 @@ export const makeBooking = async (req: Request, res: Response) => {
                 error: "An unexpected error occurred"
             });
         }
-        if (booking_check.rowCount || 0 > 0) {
+        if (booking_check.rowCount ?? 0 > 0) {
             return res.status(400).json({
                 error: "Inappropriate booking length"
             });
