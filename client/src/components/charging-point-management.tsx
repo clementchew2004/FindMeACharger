@@ -20,7 +20,6 @@ type ChargingPoint = {
 type ChargingPointManagementProps = React.ComponentProps<"div">;
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000/api";
-
 const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp", "image/heic", "image/avif"];
 
 export function ChargingPointManagement({ className, ...props }: ChargingPointManagementProps) {

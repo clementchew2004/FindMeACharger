@@ -50,7 +50,7 @@ const iconOption = L.divIcon({
   iconAnchor: [16, 42]
 });
 
-const FitBounds = ({ data }: { data: any; }) => {
+const FitBounds = ({ data }: { data: any }) => {
   const map = useMap();
 
   useEffect(() => {
@@ -63,20 +63,35 @@ const FitBounds = ({ data }: { data: any; }) => {
   return null;
 };
 
+const normalizeChargingPoints = (data: any[]) => {
+  if (!Array.isArray(data)) return [];
+
+  return data.map((point: any) => ({
+    ...point,
+    charging_point_id: point.charging_point_id ?? point.chargingPointId,
+  }));
+};
+
 const MapRoutingPage = () => {
   const { t } = useTranslation();
   const [routeData, setRouteData] = useState<any>(null);
-  const [routeSummary, setRouteSummary] = useState<{ distance: string, duration: number; } | null>(null);
+  const [routeSummary, setRouteSummary] = useState<{ distance: string; duration: number } | null>(null);
   const [showFilters, setShowFilters] = useState(false);
   const [maxDistance, setMaxDistance] = useState(30);
   const [showMarkerInfo, setShowMarkerInfo] = useState(false);
-  const [location, setLocation] = useState<{ position: LatLng, error: string | null; }>({ position: uob, error: null });
-  const [chargingPoints, setChargingPoints] = useState<any>([]);
+  const [location, setLocation] = useState<{ position: LatLng; error: string | null }>({ position: uob, error: null });
+  const [chargingPoints, setChargingPoints] = useState<any[]>([]);
   const [targetPoint, setTargetPoint] = useState<any>(null);
   const [targetPointBays, setTargetPointBays] = useState<any>(null);
   const [updateCounter, setUpdateCounter] = useState<number>(0);
   const geoJSONReference = useRef<any>(null);
   const [mode, setMode] = useState<string>("foot-walking");
+
+  const [freeOnly, setFreeOnly] = useState(false);
+  const [paidOnly, setPaidOnly] = useState(false);
+  const [availableOnly, setAvailableOnly] = useState(false);
+  const [wheelchairAccess, setWheelchairAccess] = useState(false);
+  const [noBlockedSockets, setNoBlockedSockets] = useState(false);
 
   useEffect(() => {
     if (navigator.geolocation) {
@@ -101,32 +116,65 @@ const MapRoutingPage = () => {
   }, []);
 
   useEffect(() => {
-    fetch(`${API_BASE}/api/charging-points/nearby?longitude=${location.position.lng}&latitude=${location.position.lat}&maxDistance=${maxDistance}`)
-      .then(response => {
+    const params = new URLSearchParams();
+    params.append("longitude", String(location.position.lng));
+    params.append("latitude", String(location.position.lat));
+    params.append("maxDistance", String(maxDistance));
+
+    if (availableOnly) {
+      params.append("availability", "available");
+    }
+
+    if (wheelchairAccess) {
+      params.append("wheelchair_accessible", "true");
+    }
+
+    if (noBlockedSockets) {
+      params.append("blocked_socket", "false");
+    }
+
+    if (freeOnly && !paidOnly) {
+      params.append("cost", "free");
+    }
+
+    if (paidOnly && !freeOnly) {
+      params.append("cost", "paid");
+    }
+
+    fetch(`${API_BASE}/api/charging-points/filter?${params.toString()}`)
+      .then((response) => {
         if (response.status === 204 || response.status === 500) return [];
-        else return response.json();
+        return response.json();
       })
-      .then(data => {
-        setChargingPoints(data);
+      .then((data) => {
+        setChargingPoints(normalizeChargingPoints(data));
       })
       .catch(console.error);
-
-  }, [location, maxDistance]);
+  }, [
+    location,
+    maxDistance,
+    availableOnly,
+    wheelchairAccess,
+    noBlockedSockets,
+    freeOnly,
+    paidOnly
+  ]);
 
   useEffect(() => {
     if (!targetPoint) return;
     fetch(`${API_BASE}/api/charging-points/${targetPoint.charging_point_id}/status`)
-      .then(response => {
+      .then((response) => {
         if (response.status === 404 || response.status === 500) return null;
-        else return response.json();
+        return response.json();
       })
-      .then(data => setTargetPointBays(data))
+      .then((data) => setTargetPointBays(data))
       .catch(console.error);
   }, [targetPoint, updateCounter]);
 
   const getRoute = async () => {
-    // ORS uses "longitude,latitude"
-    const startStr = `${(location.position.lng)},${location.position.lat}`;
+    if (!targetPoint) return;
+
+    const startStr = `${location.position.lng},${location.position.lat}`;
     const endStr = `${targetPoint.longitude},${targetPoint.latitude}`;
 
     try {
@@ -134,6 +182,7 @@ const MapRoutingPage = () => {
       if (response.ok) {
         const data = await response.json();
         setRouteData(data);
+
         if (geoJSONReference.current) {
           geoJSONReference.current.clearLayers();
           geoJSONReference.current.addData(data);
@@ -156,15 +205,15 @@ const MapRoutingPage = () => {
 
   const makeBooking = (bay_id: number) => {
     const requestOptions = {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ charging_bay_id: bay_id, booking_length: 60 })
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ customer_id: b_customer_id, charging_bay_id: bay_id, booking_length: 60 })
     };
 
     fetch(`${API_BASE}/api/booking`, requestOptions)
-      .then(response => response.json())
+      .then((response) => response.json())
       .then(() => {
-        setUpdateCounter(updateCounter + 1);
+        setUpdateCounter((prev) => prev + 1);
       })
       .catch(console.error);
   };
@@ -203,6 +252,7 @@ const MapRoutingPage = () => {
           }
         }
       `}</style>
+
       <div style={{ padding: "10px", flexShrink: 0, position: "relative", display: "flex", flexDirection: "column", gap: "10px" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "10px" }}>
           <input
@@ -213,8 +263,8 @@ const MapRoutingPage = () => {
             <LanguageSwitcher />
             <NavLink
               style={{ ...navLinkStyle, margin: 0, float: "none" }}
-              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "#1c5fcc"}
-              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "#348ceb"}
+              onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#1c5fcc")}
+              onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#348ceb")}
               to="/profile"
             >
               {t("map.myProfile")}
@@ -224,7 +274,10 @@ const MapRoutingPage = () => {
 
         <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "10px", justifyContent: "space-between" }}>
           <div style={{ display: "flex", gap: "10px", flexWrap: "wrap", alignItems: "center" }}>
-            <button style={{ margin: 0 }} onClick={() => setShowFilters(!showFilters)}>{t("map.filters")}</button>
+            <button style={{ margin: 0 }} onClick={() => setShowFilters(!showFilters)}>
+              {t("map.filters")}
+            </button>
+
             <EmergencyModeButton
               chargingPoints={chargingPoints}
               userLocation={location ? { lat: location.position.lat, lng: location.position.lng } : null}
@@ -233,11 +286,12 @@ const MapRoutingPage = () => {
                 setShowMarkerInfo(true);
               }}
             />
+
             <NavLink
               to="/report"
               style={{ ...navLinkStyle, margin: 0, float: "none" }}
-              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "#1c5fcc"}
-              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "#348ceb"}
+              onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#1c5fcc")}
+              onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#348ceb")}
             >
               {t("map.reportProblem")}
             </NavLink>
@@ -276,65 +330,91 @@ const MapRoutingPage = () => {
               ))}
             </div>
 
-            <button onClick={getRoute} style={{ margin: 0, padding: "8px 12px", fontSize: "14px" }}>{t("map.calculateRoute")}</button>
+            <button onClick={getRoute} style={{ margin: 0, padding: "8px 12px", fontSize: "14px" }}>
+              {t("map.calculateRoute")}
+            </button>
           </div>
         </div>
 
         {routeSummary && (
           <div style={{ fontSize: "14px", display: "flex", gap: "15px", flexWrap: "wrap", justifyContent: "flex-end" }}>
-            <p style={{ margin: 0 }}><strong>{t("map.distance")}:</strong> {routeSummary.distance} km</p>
-            <p style={{ margin: 0 }}><strong>{t("map.duration")}:</strong> {routeSummary.duration} mins</p>
+            <p style={{ margin: 0 }}>
+              <strong>{t("map.distance")}:</strong> {routeSummary.distance} km
+            </p>
+            <p style={{ margin: 0 }}>
+              <strong>{t("map.duration")}:</strong> {routeSummary.duration} mins
+            </p>
           </div>
         )}
 
         {showFilters && (
-          <div style={{
-            position: "absolute",
-            top: "100%",
-            left: "10px",
-            height: "auto",
-            maxHeight: "80vh",
-            background: "white",
-            padding: "20px",
-            boxShadow: "-4px 0 10px rgba(0,0,0,0.2)",
-            width: "auto",
-            maxWidth: "300px",
-            zIndex: 1000,
-            overflowY: "auto",
-            boxSizing: "border-box",
-            textAlign: "left"
-          }}>
+          <div
+            style={{
+              position: "absolute",
+              top: "100%",
+              left: "10px",
+              height: "auto",
+              maxHeight: "80vh",
+              background: "white",
+              padding: "20px",
+              boxShadow: "-4px 0 10px rgba(0,0,0,0.2)",
+              width: "auto",
+              maxWidth: "300px",
+              zIndex: 1000,
+              overflowY: "auto",
+              boxSizing: "border-box",
+              textAlign: "left"
+            }}
+          >
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
               <h2 style={{ margin: 0 }}>{t("map.filters")}</h2>
               <button onClick={() => setShowFilters(false)}>{t("map.applyFilters")}</button>
             </div>
 
             <div style={{ marginBottom: "20px" }}>
-              <label style={{ fontWeight: "bold" }}>{t("map.maxDistance")}: {maxDistance}</label>
+              <label style={{ fontWeight: "bold" }}>
+                {t("map.maxDistance")}: {maxDistance}
+              </label>
               <input
                 type="range"
                 min="1"
                 max="20"
                 value={maxDistance}
                 style={{ width: "80%" }}
-                onChange={(e) => setMaxDistance(Number(e.target.value))} />
+                onChange={(e) => setMaxDistance(Number(e.target.value))}
+              />
             </div>
 
             <div style={{ marginBottom: "10px" }}>
               <p style={{ fontWeight: "bold", marginBottom: "5px" }}>{t("map.cost")}:</p>
               <label style={{ display: "block", marginBottom: "4px" }}>
-                <input type="checkbox" style={{ marginRight: "8px", marginTop: "20px" }} />
+                <input
+                  type="checkbox"
+                  checked={freeOnly}
+                  onChange={(e) => setFreeOnly(e.target.checked)}
+                  style={{ marginRight: "8px", marginTop: "20px" }}
+                />
                 <span style={{ position: "relative", top: "-25px" }}>{t("map.free")}</span>
               </label>
               <label style={{ display: "block", marginBottom: "4px" }}>
-                <input type="checkbox" style={{ marginRight: "8px", marginTop: "2px" }} />
+                <input
+                  type="checkbox"
+                  checked={paidOnly}
+                  onChange={(e) => setPaidOnly(e.target.checked)}
+                  style={{ marginRight: "8px", marginTop: "2px" }}
+                />
                 <span style={{ position: "relative", top: "-25px" }}>{t("map.paid")}</span>
               </label>
             </div>
 
             <div style={{ marginBottom: "10px" }}>
               <label style={{ display: "block", fontWeight: "bold" }}>
-                <input type="checkbox" style={{ marginRight: "8px", marginTop: "2px" }} />
+                <input
+                  type="checkbox"
+                  checked={availableOnly}
+                  onChange={(e) => setAvailableOnly(e.target.checked)}
+                  style={{ marginRight: "8px", marginTop: "2px" }}
+                />
                 <span style={{ position: "relative", top: "-25px" }}>{t("map.availableOnly")}</span>
               </label>
             </div>
@@ -342,48 +422,76 @@ const MapRoutingPage = () => {
             <div>
               <p style={{ fontWeight: "bold", marginTop: "5px" }}>{t("map.accessibility")}:</p>
               <label style={{ display: "block", marginBottom: "4px" }}>
-                <input type="checkbox" style={{ marginRight: "8px", marginTop: "10px" }} />
+                <input
+                  type="checkbox"
+                  checked={wheelchairAccess}
+                  onChange={(e) => setWheelchairAccess(e.target.checked)}
+                  style={{ marginRight: "8px", marginTop: "10px" }}
+                />
                 <span style={{ position: "relative", top: "-25px" }}>{t("map.wheelchairAccess")}</span>
               </label>
               <label style={{ display: "block", marginBottom: "4px" }}>
-                <input type="checkbox" style={{ marginRight: "8px", marginTop: "10px" }} />
+                <input
+                  type="checkbox"
+                  checked={noBlockedSockets}
+                  onChange={(e) => setNoBlockedSockets(e.target.checked)}
+                  style={{ marginRight: "8px", marginTop: "10px" }}
+                />
                 <span style={{ position: "relative", top: "-25px" }}>{t("map.noBlockedSockets")}</span>
               </label>
             </div>
           </div>
         )}
-
       </div>
+
       <div style={{ flex: 1, position: "relative" }}>
         {showMarkerInfo && targetPoint && (
-          <div style={{
-            position: "absolute",
-            bottom: "20px",
-            left: "50%",
-            transform: "translateX(-50%)",
-            background: "white",
-            padding: "20px",
-            borderRadius: "8px",
-            boxShadow: "0 2px 10px rgba(0,0,0,0.3)",
-            zIndex: 1000,
-            //width: "280px"
-          }}>
+          <div
+            style={{
+              position: "absolute",
+              bottom: "20px",
+              left: "50%",
+              transform: "translateX(-50%)",
+              background: "white",
+              padding: "20px",
+              borderRadius: "8px",
+              boxShadow: "0 2px 10px rgba(0,0,0,0.3)",
+              zIndex: 1000,
+            }}
+          >
             <div>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "10px" }}>
                 <h3 style={{ margin: 0 }}>{targetPoint.shorthand_name}</h3>
-                <button onClick={() => {
-                  setShowMarkerInfo(false);
-                  setTargetPoint(null);
-                }}>✕</button>
+                <button
+                  onClick={() => {
+                    setShowMarkerInfo(false);
+                    setTargetPoint(null);
+                  }}
+                >
+                  ✕
+                </button>
               </div>
+
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "10px" }}>
                 <div>
-                  <p><strong>{t("map.info.availability")}:</strong> {targetPointBays ? (targetPointBays.overallStatus) : t("map.info.loading")}</p>
-                  <p><strong>{t("map.info.cost")}:</strong> (Free or price)</p>
-                  <p><strong>{t("map.wheelchairAccess")}:</strong> (Yes or No)</p>
-                  <p><strong>{t("map.noBlockedSockets")}:</strong> (Yes or No)</p>
-                  <p><strong>{t("map.info.userReports")}:</strong> (Reports)</p>
+                  <p>
+                    <strong>{t("map.info.availability")}:</strong>{" "}
+                    {targetPointBays ? targetPointBays.overallStatus : t("map.info.loading")}
+                  </p>
+                  <p>
+                    <strong>{t("map.info.cost")}:</strong> (Free or price)
+                  </p>
+                  <p>
+                    <strong>{t("map.wheelchairAccess")}:</strong> (Yes or No)
+                  </p>
+                  <p>
+                    <strong>{t("map.noBlockedSockets")}:</strong> (Yes or No)
+                  </p>
+                  <p>
+                    <strong>{t("map.info.userReports")}:</strong> (Reports)
+                  </p>     
                 </div>
+
                 {targetPointBays && (
                   <table>
                     <thead>
@@ -400,19 +508,20 @@ const MapRoutingPage = () => {
                           <td>{bay.bay_type_name}</td>
                           <td>{bay.status}</td>
                           <td>
-                            {bay.status === "available" ?
+                            {bay.status === "available" ? (
                               <button
                                 onClick={() => {
                                   makeBooking(bay.charging_bay_id);
                                 }}
-                                style={{
-                                  backgroundColor: "limegreen"
-                                }}>{t("map.info.book")}</button> :
-                              <button style={{
-                                backgroundColor: "red"
-                              }}
-                                disabled={true}>{t("map.info.busy")}</button>
-                            }
+                                style={{ backgroundColor: "limegreen" }}
+                              >
+                                {t("map.info.book")}
+                              </button>
+                            ) : (
+                              <button style={{ backgroundColor: "red" }} disabled={true}>
+                                {t("map.info.busy")}
+                              </button>
+                            )}
                           </td>
                         </tr>
                       ))}
@@ -420,39 +529,54 @@ const MapRoutingPage = () => {
                   </table>
                 )}
               </div>
-
             </div>
-
           </div>
         )}
 
-        <MapContainer zoomSnap={0.2} center={location.position} zoom={15} style={{ height: "100%", width: "100%", position: "absolute", top: 0, left: 0 }}>
+        <MapContainer
+          zoomSnap={0.2}
+          center={location.position}
+          zoom={15}
+          style={{ height: "100%", width: "100%", position: "absolute", top: 0, left: 0 }}
+        >
           <TileLayer
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           />
           {location && <Marker position={location.position} icon={iconA} />}
-          {targetPoint && <Marker position={new LatLng(targetPoint.latitude, targetPoint.longitude)} icon={iconB} eventHandlers={{ click: () => setShowMarkerInfo(true) }} />}
-          {
-            chargingPoints && chargingPoints.length > 0 && chargingPoints.filter((point: any) => !targetPoint || point.charging_point_id !== targetPoint.charging_point_id).map((point: any) => (
-              <Marker
-                key={point.charging_point_id}
-                position={new LatLng(point.latitude, point.longitude)}
-                icon={iconOption}
-                eventHandlers={
-                  {
+          {targetPoint && (
+            <Marker
+              position={new LatLng(targetPoint.latitude, targetPoint.longitude)}
+              icon={iconB}
+              eventHandlers={{ click: () => setShowMarkerInfo(true) }}
+            />
+          )}
+          {chargingPoints &&
+            chargingPoints.length > 0 &&
+            chargingPoints
+              .filter((point: any) => !targetPoint || point.charging_point_id !== targetPoint.charging_point_id)
+              .map((point: any) => (
+                <Marker
+                  key={point.charging_point_id}
+                  position={new LatLng(point.latitude, point.longitude)}
+                  icon={iconOption}
+                  eventHandlers={{
                     click: () => {
                       setTargetPoint(point);
                       setShowMarkerInfo(true);
                     }
-                  }
-                }
-              />
-            ))
-          }
+                  }}
+                />
+              ))}
           {routeData && (
             <>
-              <GeoJSON data={routeData} ref={(layer) => { geoJSONReference.current = layer; }} style={{ color: "#3f00f6", weight: 7 }} />
+              <GeoJSON
+                data={routeData}
+                ref={(layer) => {
+                  geoJSONReference.current = layer;
+                }}
+                style={{ color: "#3f00f6", weight: 7 }}
+              />
               <FitBounds data={routeData} />
             </>
           )}
