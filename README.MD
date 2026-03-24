@@ -33,7 +33,8 @@
 2. `npm run dev`
 
 #### Tests
-1. `npm test`
+1. Make sure the backend is running!
+2. `npm test`
 
 #### Frontend Integration Tests
 1. `cd client`
