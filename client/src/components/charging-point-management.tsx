@@ -1,6 +1,8 @@
 import { cn } from "@/lib/utils";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { NavLink, useNavigate } from "react-router-dom";
+import { authClient } from "@/lib/auth-client";
 
 type ChargingPoint = {
   id: string;
@@ -41,7 +43,7 @@ export function ChargingPointManagement({ className, ...props }: ChargingPointMa
   const [uploadLabel, setUploadLabel] = useState(t("operator.uploadLabel"));
   const [statusMsg, setStatusMsg] = useState<{ type: "idle" | "success" | "error"; message: string }>({ type: "idle", message: "" });
   const [form, setForm] = useState({ name: "", id: "", location: "", cost: "", lat: "", lng: "", accessibility: [] as string[]  });
-  
+  const navigate = useNavigate();
 
   const showMessage = (message: string, type: "success" | "error" = "success") => {
     setStatusMsg({ type, message });
@@ -118,15 +120,45 @@ export function ChargingPointManagement({ className, ...props }: ChargingPointMa
     }));
   };
 
+  const handleLogout = async () => {
+    await authClient.signOut();
+    navigate("/");
+  };
+
   const activeCount = points.filter(p => p.status === "active").length;
   const suspendedCount = points.filter(p => p.status === "suspended").length;
 
   const inputStyle = "w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-900";
 
+  const navLinkStyle: React.CSSProperties = {
+    position: "absolute",
+    top: "10px",
+    right: "10px",
+    padding: "8px 20px",
+    border: "none",
+    borderRadius: "5px",
+    backgroundColor: "#348ceb",
+    color: "white",
+    fontSize: "16px",
+    cursor: "pointer",
+    textDecoration: "none",
+    display: "inline-block",
+    zIndex: 1000
+  };
+
   return (
     <div className={cn("min-h-screen bg-gray-50 p-6", className)} {...props}>
-      <div className="max-w-3xl mx-auto">
+      <NavLink
+        to="/"
+        style={{ ...navLinkStyle, margin: 0, float: "none" }}
+        onClick={handleLogout}
+        onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#1c5fcc")}
+        onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#348ceb")}
+      >
+        Logout
+      </NavLink>
 
+      <div className="max-w-3xl mx-auto">
         {/* Header */}
         <div className="mb-6">
           <h1 className="text-xl font-medium text-gray-900">{t("operator.managementTitle")}</h1>
