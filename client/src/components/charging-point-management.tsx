@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { NavLink, useNavigate } from "react-router-dom";
 import { authClient } from "@/lib/auth-client";
+import LanguageSwitcher from "./LanguageSwitcher";
 
 type ChargingPoint = {
   charging_point_id: number;
@@ -252,37 +253,38 @@ export function ChargingPointManagement({ className, ...props }: ChargingPointMa
     "w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-900";
 
   const navLinkStyle: React.CSSProperties = {
-    position: "absolute",
-    top: "10px",
-    right: "10px",
     padding: "8px 20px",
     border: "none",
     borderRadius: "5px",
     backgroundColor: "#348ceb",
     color: "white",
-    fontSize: "16px",
+    fontSize: "14px",
     cursor: "pointer",
     textDecoration: "none",
     display: "inline-block",
-    zIndex: 1000,
   };
 
   return (
-    <div className={cn("min-h-screen bg-gray-50 p-6", className)} {...props}>
-      <NavLink
-        to="/"
-        style={{ ...navLinkStyle, margin: 0, float: "none" }}
-        onClick={handleLogout}
-        onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#1c5fcc")}
-        onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#348ceb")}
-      >
-        Logout
-      </NavLink>
-
-      <div className="max-w-3xl mx-auto">
-        <div className="mb-6">
-          <h1 className="text-xl font-medium text-gray-900">{t("operator.managementTitle")}</h1>
-          <p className="text-sm text-gray-500 mt-1">{t("operator.managementSubtitle")}</p>
+    <div className={cn("min-h-screen bg-gray-50 p-6 flex flex-col items-center", className)} {...props}>
+      <div className="w-full max-w-3xl">
+        <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-6">
+          <div>
+            <h1 className="text-xl font-medium text-gray-900">{t("operator.managementTitle")}</h1>
+            <p className="text-sm text-gray-500 mt-1">{t("operator.managementSubtitle")}</p>
+          </div>
+          
+          <div className="flex flex-wrap items-center gap-3">
+            <LanguageSwitcher />
+            <NavLink
+              to="/"
+              style={navLinkStyle}
+              onClick={handleLogout}
+              onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#1c5fcc")}
+              onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "#348ceb")}
+            >
+              {t("operator.logout")}
+            </NavLink>
+          </div>
         </div>
 
         <div className="grid grid-cols-3 gap-3 mb-6">
@@ -335,7 +337,7 @@ export function ChargingPointManagement({ className, ...props }: ChargingPointMa
                     className={inputStyle}
                     value={form.id}
                     onChange={(e) => setForm({ ...form, id: e.target.value })}
-                    placeholder="e.g. CP-004"
+                    placeholder={t("operator.placeholder.id")}
                     required
                   />
                 </div>
@@ -366,7 +368,7 @@ export function ChargingPointManagement({ className, ...props }: ChargingPointMa
                     className={inputStyle}
                     value={form.lat}
                     onChange={(e) => setForm({ ...form, lat: e.target.value })}
-                    placeholder="e.g. 52.4862"
+                    placeholder={t("operator.placeholder.latitude")}
                   />
                 </div>
 
@@ -376,7 +378,7 @@ export function ChargingPointManagement({ className, ...props }: ChargingPointMa
                     className={inputStyle}
                     value={form.lng}
                     onChange={(e) => setForm({ ...form, lng: e.target.value })}
-                    placeholder="e.g. -1.8904"
+                    placeholder={t("operator.placeholder.longitude")}
                   />
                 </div>
 
@@ -487,19 +489,19 @@ export function ChargingPointManagement({ className, ...props }: ChargingPointMa
 
               <div className="flex flex-col gap-1 mb-3">
                 <p className="text-xs text-gray-500">
-                  {t("operator.list.location", { location: cp.charging_point_location || "N/A" })}
+                  {t("operator.list.location", { location: cp.charging_point_location || t("operator.notAvailable") })}
                 </p>
                 <p className="text-xs text-gray-500">
                   {t("operator.list.accessibility", {
                     accessibility:
                       Array.isArray(cp.accessibility_features) && cp.accessibility_features.length > 0
                         ? cp.accessibility_features.join(", ")
-                        : "N/A",
+                        : t("operator.notAvailable"),
                   })}
                 </p>
                 <p className="text-xs text-gray-500">
                   {t("operator.list.cost", {
-                    cost: cp.cost_per_kwh !== null ? `£${cp.cost_per_kwh}/kWh` : "N/A",
+                    cost: cp.cost_per_kwh !== null ? `£${cp.cost_per_kwh}/kWh` : t("operator.notAvailable"),
                   })}
                 </p>
               </div>
