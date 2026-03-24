@@ -55,13 +55,8 @@ export const makeBooking = async (req: Request, res: Response) => {
             `,
             [charging_bay_id, booking_length]
         )
-        if (!booking_check) {
+        if (!booking_check || (booking_check.rowCount ?? 0 > 0)) {
             return res.status(500).json({
-                error: "An unexpected error occurred"
-            });
-        }
-        if (booking_check.rowCount ?? 0 > 0) {
-            return res.status(400).json({
                 error: "An unexpected error occurred"
             });
         }
@@ -78,7 +73,7 @@ export const makeBooking = async (req: Request, res: Response) => {
         );
         /* c8 ignore start */
         // pre-emptive because i just know i'm not gonna be able to get this bit covered
-        if (!response || response.rowCount || 0 === 0) {
+        if (!response || (response.rowCount ?? 0 === 0)) {
             return res.status(500).json({
                 error: "Couldn't book slot"
             })
