@@ -233,17 +233,6 @@ const MapRoutingPage = () => {
     display: "inline-block"
   };
 
-  const selectedPointCost =
-    targetPoint?.cost_per_kwh !== null && targetPoint?.cost_per_kwh !== undefined
-      ? `£${targetPoint.cost_per_kwh}/kWh`
-      : t("map.free");
-
-  const selectedPointWheelchair =
-    targetPointBays?.bays?.some((bay: any) => bay.wheelchair_accessible) ? t("map.yes") : t("map.no");
-
-  const selectedPointBlockedSockets =
-    targetPointBays?.bays?.some((bay: any) => bay.blocked_socket) ? t("map.yes") : t("map.no");
-
   return (
     <div style={{ height: "100dvh", display: "flex", flexDirection: "column" }}>
       <style>{`
@@ -490,17 +479,17 @@ const MapRoutingPage = () => {
                     {targetPointBays ? targetPointBays.overallStatus : t("map.info.loading")}
                   </p>
                   <p>
-                    <strong>{t("map.info.cost")}:</strong> {selectedPointCost}
+                    <strong>{t("map.info.cost")}:</strong> (Free or price)
                   </p>
                   <p>
-                    <strong>{t("map.wheelchairAccess")}:</strong> {selectedPointWheelchair}
+                    <strong>{t("map.wheelchairAccess")}:</strong> (Yes or No)
                   </p>
                   <p>
-                    <strong>{t("map.noBlockedSockets")}:</strong> {selectedPointBlockedSockets}
+                    <strong>{t("map.noBlockedSockets")}:</strong> (Yes or No)
                   </p>
                   <p>
                     <strong>{t("map.info.userReports")}:</strong> (Reports)
-                  </p>
+                  </p>     
                 </div>
 
                 {targetPointBays && (

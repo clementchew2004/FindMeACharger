@@ -128,10 +128,12 @@ export const getChargingPointsWithinDistance = async (req: Request, res: Respons
                 point.latitude,
                 point.longitude,
                 point.shorthand_name,
-                point.charging_point_location
+                point.charging_point_location,
+                point.cost_per_kwh
             FROM 
                 charging_points point
             WHERE 
+                point.is_operational = trues
                 (
                     6371 * acos(
                         cos(radians($1)) * cos(radians(point.latitude)) * cos(radians(point.longitude) - radians($2)) +
@@ -583,6 +585,8 @@ export const filterChargingPoints = async (req: Request, res: Response) => {
 
     const queryParams: any[] = [];
     const whereConditions: string[] = [];
+
+    whereConditions.push(`point.is_operational = true`);
 
     const availabilityFormula = `
         CASE
