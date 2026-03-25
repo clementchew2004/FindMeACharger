@@ -22,10 +22,10 @@ describe("Report Form", () => {
         <ReportForm />
       </MemoryRouter>
     );
-    await userEvent.type(screen.getByLabelText(/charging point/i), "CP-001");
+    await userEvent.type(screen.getByLabelText(/charging point/i), "WESTGATE");
     await userEvent.selectOptions(screen.getByLabelText(/type of issue/i), "Other");
     await userEvent.type(screen.getByLabelText(/description/i), "Test issue");
-    expect(screen.getByDisplayValue("CP-001")).toBeInTheDocument();
+    expect(screen.getByDisplayValue("WESTGATE")).toBeInTheDocument();
     expect(screen.getByDisplayValue("Test issue")).toBeInTheDocument();
   });
 

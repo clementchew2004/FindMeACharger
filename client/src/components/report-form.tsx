@@ -26,20 +26,20 @@ export function ReportForm({ className, ...props }: ReportFormProps) {
   const { t } = useTranslation();
   const ISSUE_TYPES = [
     t("report.issue.broken"),
-    t("report.issue.blocked"),
-    t("report.issue.payment"),
-    t("report.issue.safety"),
+    t("report.issue.unclean"),
+    t("report.issue.vandalism"),
+    t("report.issue.antisocial"),
     t("report.issue.other"),
   ];
 
   const ISSUE_TYPES_EN = [
-    "Broken / Not Working",
-    "Blocked / Inaccessible",
-    "Payment Issue",
-    "Safety Concern",
+    "Broken",
+    "Unclean",
+    "Graffiti or vandalism",
+    "Antisocial behaviour",
     "Other",
   ];
-  const [chargingPointId, setChargingPointId] = useState("");
+  const [chargingPointShortName, setChargingPointId] = useState("");
   const [issueType, setIssueType] = useState("");
   const [description, setDescription] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -54,14 +54,14 @@ export function ReportForm({ className, ...props }: ReportFormProps) {
     setStatus({ type: "idle", message: "" });
 
     try {
-      const response = await fetch(`${API_BASE}/api/reports`, {
+      const response = await fetch(`${API_BASE}/api/create-reports`, {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          chargingPointId,
-          issueType,
-          description,
+          charging_point_sname: chargingPointShortName,
+          report_category: issueType,
+          report_description: description,
         }),
       });
 
@@ -125,7 +125,7 @@ export function ReportForm({ className, ...props }: ReportFormProps) {
                 <Input
                   id="chargingPointId"
                   type="text"
-                  value={chargingPointId}
+                  value={chargingPointShortName}
                   onChange={(e) => setChargingPointId(e.target.value)}
                   placeholder={t("report.chargingPointPlaceholder")}
                   disabled={isSubmitting}
