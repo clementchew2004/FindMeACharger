@@ -56,6 +56,7 @@ export function ReportForm({ className, ...props }: ReportFormProps) {
     try {
       const response = await fetch(`${API_BASE}/api/reports`, {
         method: "POST",
+        credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           chargingPointId,

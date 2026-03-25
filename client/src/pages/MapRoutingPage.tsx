@@ -142,7 +142,10 @@ const MapRoutingPage = () => {
       params.append("cost", "paid");
     }
 
-    fetch(`${API_BASE}/api/charging-points/filter?${params.toString()}`)
+    fetch(`${API_BASE}/api/charging-points/filter?${params.toString()}`,
+  {
+    credentials: "include"
+  })
       .then((response) => {
         if (response.status === 204 || response.status === 500) return [];
         return response.json();
@@ -163,7 +166,9 @@ const MapRoutingPage = () => {
 
   useEffect(() => {
     if (!targetPoint) return;
-    fetch(`${API_BASE}/api/charging-points/${targetPoint.charging_point_id}/status`)
+    fetch(`${API_BASE}/api/charging-points/${targetPoint.charging_point_id}/status`, {
+      credentials: "include"
+    })
       .then((response) => {
         if (response.status === 404 || response.status === 500) return null;
         return response.json();
@@ -179,7 +184,9 @@ const MapRoutingPage = () => {
     const endStr = `${targetPoint.longitude},${targetPoint.latitude}`;
 
     try {
-      const response = await fetch(`${API_BASE}/api/get-route?start=${startStr}&end=${endStr}&mode=${mode}`);
+      const response = await fetch(`${API_BASE}/api/get-route?start=${startStr}&end=${endStr}&mode=${mode}`, {
+        credentials: "include"
+      });
       if (response.ok) {
         const data = await response.json();
         setRouteData(data);
@@ -205,8 +212,9 @@ const MapRoutingPage = () => {
   };
 
   const makeBooking = (bay_id: number) => {
-    const requestOptions = {
+    const requestOptions: RequestInit = {
       method: "POST",
+      credentials: "include",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ charging_bay_id: bay_id, booking_length: 60 })
     };
