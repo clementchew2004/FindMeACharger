@@ -130,7 +130,7 @@ t.test('test reports', async t => {
 
         const user = await pool.query(
             `
-                SELECT customers.customer_id
+                SELECT customers.customer_id, customers.user_id
                 FROM customers
                 WHERE customers.user_id = (SELECT id FROM "user" WHERE "user".name = $1);
             `,
@@ -159,12 +159,12 @@ t.test('test reports', async t => {
         } as unknown as Response;
         await getReportType({} as unknown as Request, report_reason_response);
         (request as any).body = {
-            reporter_id: user.rows[0].customer_id,
-            charging_point_id: charging_point.rows[0].charging_point_id,
-            report_reason: rrrput[0].report_type_id,
+            charging_point_sname: "WESTGATE",
+            report_category: rrrput[0].report_reason,
             report_description: "valid test report",
             booking_id: null
         };
+        (request as any).session = { userId: user.rows[0].user_id };
         respStatus = 200;
         output = null;
         (response as any).body = null;

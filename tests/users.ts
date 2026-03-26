@@ -191,7 +191,7 @@ t.test('test operator user', async t => {
                 ($1, $2)
             RETURNING "user".id;
             `,
-            ["Test Operator", "operator@test.com"]
+            ["Test Operator", "optestnew@test.com"]
         );
         if (!user) throw new Error("couldn't make user");
 
