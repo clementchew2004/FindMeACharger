@@ -85,8 +85,8 @@ t.test('test reports', async t => {
         output = null;
         (response as any).body = null;
         await createReport(request, response);
-        t.equal(respStatus, 500);
-        t.match(output, {error: "Failed to create report"});
+        t.equal(respStatus, 400);
+        t.match(output, {error: "reporter_id, charging_point_id, report_reason are required to make a report"});
 
         (request as any).body = {
             charging_point_id: -1,
@@ -99,7 +99,7 @@ t.test('test reports', async t => {
         (response as any).body = null;
         await createReport(request, response);
         t.equal(respStatus, 400);
-        t.match(output, {error: "reported_id, charging_point_id, report_reason are required to make a report"});
+        t.match(output, {error: "reporter_id, charging_point_id, report_reason are required to make a report"});
 
         (request as any).body = {
             reporter_id: -1,
@@ -112,7 +112,7 @@ t.test('test reports', async t => {
         (response as any).body = null;
         await createReport(request, response);
         t.equal(respStatus, 400);
-        t.match(output, {error: "reported_id, charging_point_id, report_reason are required to make a report"});
+        t.match(output, {error: "reporter_id, charging_point_id, report_reason are required to make a report"});
 
         (request as any).body = {
             reporter_id: -1,
@@ -125,7 +125,7 @@ t.test('test reports', async t => {
         (response as any).body = null;
         await createReport(request, response);
         t.equal(respStatus, 400);
-        t.match(output, {error: "reported_id, charging_point_id, report_reason are required to make a report"});
+        t.match(output, {error: "reporter_id, charging_point_id, report_reason are required to make a report"});
 
 
         const user = await pool.query(
