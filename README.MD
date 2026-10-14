@@ -1,4 +1,4 @@
-# FindMeACharger - ObjectOrientedOracles Group Project
+# FindMeACharger - Group Project
 
 ## Setup
 ### Express backend
